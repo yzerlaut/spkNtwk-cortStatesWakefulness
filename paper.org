@@ -1,78 +1,22 @@
-Title: A template for scientific papers
-Authors: First Author{1}, Second Author{1,2}*
-Short Title: Paper Template
-Short Authors: Author et al.
-Affiliations: {1} My first affiliation, {2} Second author affiliation
-Correspondence: firstname.lastname@domain.country
-Keywords: scientific papers; biology journals; txt files; Org-Mode; $\LaTeX$
-Conflict of interest: All manuscripts must contain a statement regarding Competing interests. If there are no competing interests, a statement to this effect must be included. All authors should disclose any conflict of interest in accordance with journal policy.
-Acknowledgements: Acknowledgements should be the minimum consistent with courtesy. The wording of acknowledgements of scientific assistance or advice must have been seen and approved by the persons concerned. This section should not include details of funding. 
-Funding: Authors must indicate all sources of funding, including grant numbers. If authors have not received funding, this must be stated.
+#+title: A Spiking Network Model for the Cortical States of Wakefulness
+#+author: Yann Zerlaut{1,2}
+#+Short Title: Paper Template
+Short Authors: Y. Zerlaut
+Affiliations: {1} ICM, {2} CNRS
+Correspondence: yann.zerlaut@cnrs.fr
+Keywords: Network Model, States of Wakefulness
+Acknowledgements: I thank XXX for feedback on the manuscript.
+Funding: This research was supported by the ICM and by a fellowship from the Fondation pour la Recherche Médicale ().
 
 * Abstract
 
-Org-Mode is for keeping notes, maintaining TODO lists, planning
-projects, and authoring documents with a fast and effective plain-text
-system. Visit \url{http://orgmode.org/}. Here we build up a template
-for scientific papers with the following characteristics:Praesent
-blandit blandit mauris. Praesent lectus tellus, aliquet aliquam,
-luctus a, egestas a, turpis. Mauris lacinia lorem sit amet ipsum. Nunc
-quis urna dictum turpis accumsan semper. Sed interdum libero ut
-metus. Pellentesque placerat. Nam rutrum augue a leo. Morbi sed elit
-sit amet ante lobortis sollicitudin. Praesent blandit blandit
-mauris. Praesent lectus tellus, aliquet aliquam, luctus a, egestas a,
-turpis. Mauris lacinia lorem sit amet ipsum. Nunc quis urna dictum
-turpis accumsan semper. Praesent lectus tellus, aliquet aliquam,
-luctus a, egestas a, turpis. Mauris lacinia lorem sit amet ipsum. Nunc
-quis urna dictum turpis accumsan semper. Sed interdum libero ut
-metus. Pellentesque placerat. Nam rutrum augue a leo. Morbi sed elit
-sit amet ante lobortis sollicitudin. Praesent blandit blandit
-mauris. Praesent lectus tellus, aliquet aliquam, luctus a, egestas a,
-turpis. Mauris lacinia lorem sit amet ipsum. Nunc quis urna dictum
-turpis accumsan semper.Praesent lectus tellus, aliquet aliquam,
-luctus a, egestas a, turpis. Mauris lacinia lorem sit amet ipsum. Nunc
-quis urna dictum turpis accumsan semper. Sed interdum libero ut
-metus. Pellentesque placerat. Nam rutrum augue a leo. Morbi sed elit
-sit amet ante lobortis sollicitudin.
+Despite a large body of experimental work studying the mechanisms and functions of state-dependent computations in neocortex during wakefulness, such work did not lead to a theory.
 
-* Significance
+The present study integrates informations to build a minimal model of cortical  . It is shown that this model displays key features of the network dynamics and the state-dependent information processing of 
 
-Lorem ipsum dolor sit amet, consectetuer adipisc ing elit. Etiam
-lobortis facilisis sem. Nullam nec mi et neque pharetra
-sollicitudin. Praesent imperdiet mi nec ante. Donec ullamcorper, felis
-non sodales commodo, lectus velit ultrices augue, a dignissim nibh
-lectus placerat pede. Vivamus nunc nunc, molestie ut, ultricies vel,
-semper in, velit.  Ut porttitor. Praesent in sapien. Lorem ipsum dolor
-sit amet, consectetuer adipiscing elit. Duis fringilla tristique
-neque. Praesent lectus tellus, aliquet aliquam,
-luctus a, egestas a, turpis. Mauris lacinia lorem sit amet ipsum. Nunc
-quis urna dictum turpis accumsan semper. Sed interdum libero ut
-metus. Pellentesque placerat. Nam rutrum augue a leo. Morbi sed elit
-sit amet ante lobortis sollicitudin. Praesent blandit blandit
-mauris. Praesent lectus tellus, aliquet aliquam, luctus a, egestas a,
-turpis. Mauris lacinia lorem sit amet ipsum. Nunc quis urna dictum
-turpis accumsan semper.
+While much research has been devoted performed on the , a theoretical model. Here, a 
 
-* Introduction
-
-[[Figure {Fig1} around here]]
-
-We can play with references (Telenczuk et al., 2017; Destexhe et al., 2003; Chance et al., 2002) and also include them in text, such as in Destexhe et al. (2003) or Reig et al. (2015). We make a a reference to Figure {Fig1}a,c and
-Figure {Fig3}B and Figure {Fig2}(ii).
-
-Together with a reference to Equation {first} and Equation {eq1} and
-to Table {Tab1} and to Table {Tab2}.
-
-Lorem ipsum dolor sit amet, consectetuer adipisc- ing elit. Etiam
-lobortis facilisis sem. Nullam nec mi et neque pharetra
-sollicitudin. Praesent im- perdiet mi nec ante. Donec ullamcorper,
-felis non sodales commodo, lectus velit ultrices augue, a dig- nissim
-nibh lectus placerat pede.
-
-we can play with references (Destexhe et al., 2003; Chance et al., 2002) and also include them in text, such as in Destexhe et al. (2003). \NOTE{add another reference here !}
-
-We make a a reference to Figure {Fig1}a,c and Figure {Fig3}B and
-Figure {Fig2}.
+The proposed spiking network model might offer a fundational building block to  understand the functional flexibility mediated by network states in the awake cortex.
 
 * Results
 
