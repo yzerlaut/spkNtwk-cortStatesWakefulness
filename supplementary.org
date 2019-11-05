@@ -17,6 +17,10 @@ While much research has been devoted performed on the , a theoretical model. Her
 
 The proposed spiking network model might offer a fundational building block to  understand the functional flexibility mediated by network states in the awake cortex.
 
+#+CAPTION: This is the caption for figure 4
+#+NAME:   fig:4
+[[./figures/Fig4.png]]
+
 * Results
 
 
