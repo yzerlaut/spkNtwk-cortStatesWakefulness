@@ -9,7 +9,6 @@ mg = graphs() # initiate a custom plotting environment
 ## ------ Construct populations with their equations -------- ##
 ## ------------- with recurrent connections ----------------- ##
 ################################################################
-
 POPS = ['Exc', 'oscillExc', 'PvInh', 'SstInh', 'VipInh', 'AffExc', 'NoiseExc']
 
 Model = {
@@ -18,9 +17,9 @@ Model = {
     ## UNIT SYSTEM is : ms, mV, pF, nS, pA, Hz (arbitrary and unconsistent, so see code)
     ## ---------------------------------------------------------------------------------
     # numbers of neurons in population
-    'N_Exc':3800, 'N_oscillExc':200, 'N_PvInh':500, 'N_SstInh':500, 'N_VipInh':100, 'N_AffExc':500, 'N_NoiseExc':500,
+    'N_Exc':3900, 'N_oscillExc':100, 'N_PvInh':500, 'N_SstInh':500, 'N_VipInh':100, 'N_AffExc':500, 'N_NoiseExc':500,
     # synaptic weights
-    'Q_Exc_Exc':1., 'Q_Exc_Inh':1., 
+    'Q_Exc_Exc':2., 'Q_Exc_oscillExc':2., 'Q_Exc_PvInh':2., 'Q_Exc_SstInh':2., 'Q_Exc_SstInh':2., 
     'Q_AffExc_Exc':3., 'Q_AffExc_Inh':3., 'Q_AffExc_oscillExc':3., 
     'Q_Inh_Exc':10., 'Q_Inh_Inh':10.,
     'Q_oscillExc_Inh':10., 
