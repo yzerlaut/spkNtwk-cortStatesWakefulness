@@ -1,15 +1,18 @@
 import sys, pathlib
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
 import neural_network_dynamics.main as ntwk
+
 from graphs.my_graph import graphs
 mg = graphs() # initiate a custom plotting environment
 
+import numpy as np
 
 ################################################################
 ## ------ Construct populations with their equations -------- ##
 ## ------------- with recurrent connections ----------------- ##
 ################################################################
-POPS = ['Exc', 'oscillExc', 'PvInh', 'SstInh', 'VipInh', 'AffExc', 'NoiseExc']
+POPS = ['Exc', 'oscillExc', 'PvInh', 'SstInh', 'VipInh', 'NoiseExc']
+POPS = ['Exc', 'oscillExc', 'Inh', 'NoiseExc']
 
 Model = {
     ## ---------------------------------------------------------------------------------
@@ -17,6 +20,7 @@ Model = {
     ## UNIT SYSTEM is : ms, mV, pF, nS, pA, Hz (arbitrary and unconsistent, so see code)
     ## ---------------------------------------------------------------------------------
     # numbers of neurons in population
+    'N_Inh':1000,
     'N_Exc':3900, 'N_oscillExc':100, 'N_PvInh':500, 'N_SstInh':500, 'N_VipInh':100, 'N_AffExc':500, 'N_NoiseExc':500,
     # synaptic weights
     'Q_Exc_Exc':2., 'Q_Exc_oscillExc':2., 'Q_Exc_PvInh':2., 'Q_Exc_SstInh':2., 'Q_Exc_SstInh':2., 
@@ -44,16 +48,24 @@ Model = {
     'Inh_Gl':10., 'Inh_Cm':200.,'Inh_Trefrac':3.,
     'Inh_El':-70., 'Inh_Vthre':-50., 'Inh_Vreset':-70., 'Inh_deltaV':0.,
     'Inh_a':0., 'Inh_b': 0., 'Inh_tauw':1e9,
-    # --> Disinhibitory population (Inh, recurrent inhibition)
+    # --> Exc. population with intrinsic rhythmicity !
     'oscillExc_Gl':10., 'oscillExc_Cm':200.,'oscillExc_Trefrac':3.,
     'oscillExc_El':-70., 'oscillExc_Vthre':-50., 'oscillExc_Vreset':-70., 'oscillExc_deltaV':0.,
     'oscillExc_Ioscill_amp':20.*10, 'oscillExc_Ioscill_freq': 3.,
     'oscillExc_a':0., 'oscillExc_b': 0., 'oscillExc_tauw':1e9,
+    # --> Disinhibitory population (Inh, recurrent inhibition)
+    'VipInh_Gl':10., 'VipInh_Cm':200.,'VipInh_Trefrac':3.,
+    'VipInh_El':-70., 'VipInh_Vthre':-50., 'VipInh_Vreset':-70., 'VipInh_deltaV':0.,
+    'VipInh_a':0., 'VipInh_b': 0., 'VipInh_tauw':1e9,
+    # --> Disinhibitory population (Inh, recurrent inhibition)
+    'SstInh_Gl':10., 'SstInh_Cm':200.,'SstInh_Trefrac':3.,
+    'SstInh_El':-70., 'SstInh_Vthre':-50., 'SstInh_Vreset':-70., 'SstInh_deltaV':0.,
+    'SstInh_a':0., 'SstInh_b': 0., 'SstInh_tauw':1e9,
 }
 
 
-NTWK = ntwk.build_populations(Model, ['Exc', 'Inh', 'oscillExc'],
-                              AFFERENT_POPULATIONS=['AffExc'],
+NTWK = ntwk.build_populations(Model, ['Exc', 'oscillExc', 'Inh'],
+                              AFFERENT_POPULATIONS=['NoiseExc', 'AffExc'],
                               with_raster=True,
                               with_Vm=4,
                               # with_synaptic_currents=True,

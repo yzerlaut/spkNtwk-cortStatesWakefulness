@@ -21,6 +21,22 @@ The proposed spiking network model might offer a fundational building block to  
 #+NAME:   fig:4
 [[./figures/Fig4.png]]
 
+* 
+
+Relying on a semi-analytical (Brunel and Sergi, 1998; Kumar et al., 2007; Zerlaut et al., 2016) we emned such function in a (Kumar et al., 2008; Zerlaut et al., 2019).
+
+Despite a large body of experimental work studying the mechanisms and functions of state-dependent computations in neocortex during wakefulness, such work did not lead to a theory.
+
+The present study integrates informations to build a minimal model of cortical  . It is shown that this model displays key features of the network dynamics and the state-dependent information processing of 
+
+While much research has been devoted performed on the , a theoretical model. Here, a 
+
+The proposed spiking network model might offer a fundational building block to  understand the functional flexibility mediated by network states in the awake cortex.
+
+#+CAPTION: This is the caption for figure 4
+#+NAME:   fig:4
+[[./figures/Fig4.png]]
+
 * Results
 
 
