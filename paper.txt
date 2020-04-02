@@ -23,6 +23,8 @@ In this paper, we tackle this question with theoretical modeling of spiking netw
 In parallel, psychophysical studies have pinpointed the critical role of the behavioral and physiological state in controlling perception.  
 The circuits and mechanisms have been the fo
 
+[[Figure {dynamics} around here]]
+
 We embed a subpopulation of layer 5 excitatory neurons with oscillatory ionic currents, giving them the ability to display the rhythmic spiking , similarly to findings under anesthesia. 
 For the rhythmic part, we adapt
 
@@ -38,11 +40,15 @@ we investigate the dynamics as function of this variable
 
 Fig 1. 
 
-
-To explore the network dynamics in this 49-dimensional space (7x7 connectivity probabilities), we make use of the analytical reduction of the network dynamics as numerical investigations is too computationnally expensive (intractable/prohibitove/unfeasible). Such an analytical reduction of the network dynamics, also known as a mean-field description, to perform the connectivity parameter search. Those estimates were confirmed by numerical simulations of the spiking network.
+To explore the network dynamics in this 49-dimensional space (7x7 connectivity probabilities), we make use of the analytical reduction of the network dynamics as numerical investigations is too computationnally expensive (intractable/prohibitove/unfeasible). Such an analytical reduction of the network dynamics, also known as a mean-field description, to perform the connectivity parameter search. Those analytical estimates were confirmed by numerical simulations of the spiking network, in particular the optimal configuration was found 
 
 
 Remarkably we found that the connnectivity schemes allowing the closely resemble the canonical scheme of cortical circuit (Jiang et al., 2015), we therefore identify (see Figure {1})
+
+The largest inhibitory population was found to highly connect to pyramidal cell, to balance the recurrent dynamics at high-activity level (see current weight inset in Figure {dynamics}e(ii)), i.e. matching the PV basket-cell type of inhibition.
+
+The second largest population was providing tonic inhibition during rhythmic periods and decreased
+
 
 
 At that point, two crucial questions emerge. What is the functional role of the non-zero endogenous activity found at low arousal ? Such rhythmic pattern make it difficult to be optimal for the transmission of sensory-evoked activity. 
@@ -166,15 +172,28 @@ playing with some reference here (Destexhe et al., 2003)
 
 *** A spiking network model for the cortical states of wakefulness: architecture and dynamical regimes. 
 #+options : {'label':'Fig1', 'extent':'singlecolumn', 'wrapfig':True, 'width':.57, 'height':10, 'wrapfig_space_left':-1.5, 'file':os.path.expanduser("~")+'/work/graphs/output/2d.png'}
-(a) jkfhsakdfh. (b) sakldjfhsdfjh.
-A one column figure where the legend wraps around the figure.
-Generate the figure with the file \texttt{surface\_plot.py} from the \texttt{graphs} module available at the following \href{https://bitbucket.org/yzerlaut/graphs/src/master/}{[link]}. Lorem ipsum dolor sit amet, consectetuer adipisc- ing elit. Etiam lobortis facilisis sem. Nullam nec mi et neque pharetra sollicitudin. We added an optional horizontal rule at the bottom.
+(a) Schematic of the 5 population model.
+(b) The U-model of cortical states.
+(c) Minimization procedure.
+(d) Resulting connectivity matrix.
+(e) Network dynamics.
 
-*** A two column figure where the legend wraps around the figure.
+*** Testing network function in two vision-inspired tasks.
+#+options : {'label':'Fig3', 'extent':'doublecolumn', 'wrapfig':True, 'width':.52, 'height':9, 'hrule_bottom':True, 'file':os.path.expanduser("~")+'/work/graphs/output/fig.png'}
+(a) A phenomenological model of the visual system up to V1 now feeds the local cortical model based on a screen content. This model  
+(b) Praesentlectus tellus, aliquet aliquam, luctus a, egestas a,turpis. Mauris lacinia lorem sit amet ipsum. 
+(c) Nuncquis urna dictum turpis accumsan semper. Lorem ipsum dolor sit amet, consectetuer adipisc ing elit. Etiam lobortis facilisis sem. Nullam nec mi et neque pharetra sollicitudin. Praesent imperdiet mi nec ante. Donec ullamcorper,felis non sodales commodo, lectus velit ultrices augue, a dignissim nibh lectus placerat pede. Vivamus nunc nunc, molestie ut, ultricies vel, semper in, velit.
+
+*** Functional flexibility across network regimes: sparse activity regimes are optimal for natural scene identification while dense activity regimes are optimal for visual event detection.
 #+options : {'label':'Fig3', 'extent':'doublecolumn', 'wrapfig':True, 'width':.52, 'height':9, 'hrule_bottom':True, 'file':os.path.expanduser("~")+'/work/graphs/output/fig.png'}
 (a) Lorem ipsumdolor sit amet in *B* and *C*, consectetuer adipiscing elit. Duisfringilla tristique neque. Sed interdum libero utmetus. Pellentesque placerat. Nam rutrum auguea leo. Morbi sed elit sit amet ante lobortis sollici-tudin. Praesent blandit blandit mauris.
 (b) Praesentlectus tellus, aliquet aliquam, luctus a, egestas a,turpis. Mauris lacinia lorem sit amet ipsum. 
 (c) Nuncquis urna dictum turpis accumsan semper. Lorem ipsum dolor sit amet, consectetuer adipisc ing elit. Etiam lobortis facilisis sem. Nullam nec mi et neque pharetra sollicitudin. Praesent imperdiet mi nec ante. Donec ullamcorper,felis non sodales commodo, lectus velit ultrices augue, a dignissim nibh lectus placerat pede. Vivamus nunc nunc, molestie ut, ultricies vel, semper in, velit.
+
+*** Role of rhythmic activity.
+#+options : {'label':'Fig3', 'extent':'doublecolumn', 'wrapfig':True, 'width':.52, 'height':9, 'hrule_bottom':True, 'file':os.path.expanduser("~")+'/work/graphs/output/fig.png'}
+(a) blabla.
+(b) blabla.
 
 * Tables
 

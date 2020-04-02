@@ -15,7 +15,7 @@ AFF_POPS = ['AffExc', 'NoiseExc']
 
 # adding the same LIF props to all recurrent pops
 LIF_props = {'Gl':10., 'Cm':150.,'Trefrac':5.,
-             'El':-70, 'Vthre':-50., 'Vreset':-70., 'deltaV':0.,
+             'El':-75, 'Vthre':-50., 'Vreset':-75., 'deltaV':0.,
              'a':0., 'b': 0., 'tauw':1e9}
 
 Model = {
@@ -41,7 +41,7 @@ for pop in REC_POPS:
         Model['%s_%s' % (pop, key)] = val
 # adding the oscillatory feature to the oscillExc pop
 Model['oscillExc_Ioscill_freq']=3.
-Model['oscillExc_Ioscill_amp']= 10.*20.  
+Model['oscillExc_Ioscill_amp']= 10.*25.  
 
 # === adding synaptic weights ===
 Qe, Qi = 2, 10 # nS
