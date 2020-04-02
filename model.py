@@ -31,10 +31,9 @@ Model = {
     # synaptic reversal potentials
     'Ee':0., 'Ei': -80.,
     # afferent stimulation
-    'F_AffExc':10., 'F_NoiseExc':0.,
+    'F_AffExc':10., 'F_NoiseExc':1.,
     # simulation parameters
     'dt':0.1, 'tstop': 100., 'SEED':3, # low by default, see later
-    
 }
 
 for pop in REC_POPS:
@@ -42,7 +41,7 @@ for pop in REC_POPS:
         Model['%s_%s' % (pop, key)] = val
 # adding the oscillatory feature to the oscillExc pop
 Model['oscillExc_Ioscill_freq']=3.
-Model['Ioscill_amp']= 10.*20.  
+Model['oscillExc_Ioscill_amp']= 10.*20.  
 
 # === adding synaptic weights ===
 Qe, Qi = 2, 10 # nS

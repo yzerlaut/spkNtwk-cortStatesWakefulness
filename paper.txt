@@ -1,21 +1,21 @@
 Title: A Spiking Network Model for the Modulation of Cortical Dynamics and Function during Wakefulness
 Authors: Yann Zerlaut{1,2}
-#+Short Title: Paper Template
+Short Title: A spiking model for the modulation of sensation
 Short Authors: Y. Zerlaut
 Affiliations: {1} ICM, Brain and Spine Institute, Hôpital de la Pitié-Salpêtrière, Sorbonne Université, Inserm, CNRS, Paris, France {2} Neuroinformatics group, Centre National de la Recherche Scientifique, Gif sur Yvette France. 
-
 Correspondence: yann.zerlaut@cnrs.fr
-Keywords: Network Model, States of Wakefulness
-Acknowledgements: I thank Nelson Rebola, Alberto Bacci and Andrew Davision for support and discussions, I think [...] for feedback on the manuscript.
-Funding: This research was supported by a fellowship from the Fondation pour la Recherche Médicale () as well as.
+Keywords: spiking network model, cortical states, wakefulness, neural coding
+Acknowledgements: I thank Andrew Davison, Nelson Rebola and Alberto Bacci for support and discussions. I thank [...] for feedback on the manuscript.
+Funding: This research was supported by a postdoctoral fellowship from the Fondation pour la Recherche Médicale (No ARF201909009117). This project has received funding from the European Union’s Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No 892175 (InProSMod).
+Data Availability: The integrality of the simulations and analysis of the main and supplementary material are publicly available at the following address: https://github.com/yzerlaut/spkNtwk-cortStatesWakefulness/ 
 
 * Abstract
 
-Despite the large body of experimental work highlighting the critical role of state-dependent computations in the awake cortex, a theoretical framework describing such phenomenon is still lacking. The present study builds a minimal spiking model of a local cortical assembly and examines its dynamical and computational properties. It is first shown that a weak intrinsic rhythmicity coupled with competing inhibitory and disinhibitory circuits make the network generates the set of dynamical regimes known as the “U-model” of cortical states: the regimes observed at various arousal levels in rodent sensory cortices. We then test the functional specificity of such network states in two vision-inspired tasks. In a natural scene discrimination task, the network encoding is found to be optimal when displaying the sparse activity regime associated to intermediate arousal levels. In a light detection task, the network is optimally detecting when displaying the dense activity regimes found at high arousal levels. Finally, the model proposes a functional role for the rhythmic activity characterizing the idling cortex, it insures unambiguous transitions between the function-specific sparse and dense desynchronized modes of cortical activity. The proposed model might provide a foundational building block to understand the functional flexibility mediated by spike-based dynamics in neocortex during wakefulness.
+Despite the large body of experimental work highlighting the critical role of state-dependent computations in the awake cortex, a theoretical framework providing a mechanistic and functional description of this phenomenon is still lacking. The present study builds a minimal spiking network model of a local cortical assembly and examines its dynamical and computational properties. It is first shown that a weak intrinsic rhythmicity coupled with competing inhibitory and disinhibitory circuits allow recurrent spiking networks to generate the set of dynamical regimes known as the “U-model” of cortical states: the regimes observed at various arousal levels in rodent sensory cortices. We then test the functional specificity of such network states in two vision-inspired tasks. In a natural scene discrimination task, the network encoding is found to be optimal (high-reliability) when displaying the sparse activity regime associated to intermediate arousal levels. In a low contrast detection task, the network is optimally detecting (highly-sensitive) when displaying the high-sensitivity dense activity regime found at high arousal levels. Finally, the model proposes a functional role for the rhythmic activity characterizing the idling cortex, it insures unambiguous transitions between the high-reliability and high-sensitivity modes of cortical activity. This theoretical work demonstrates that spike-based interactions in recurrent networks allow to implement a reliable switch between high-reliability and high-sensitivity modes of signal processing. This suggests that this principle is the key functional constraint governing cortical operation in the awake cortex.
 
 * Main text
 
-Over the last two decades, in vivo physiology has established that the modulation of information transmission by the internal brain dynamics is a hallmark of cortical processing (Arieli et al., 1996). 
+Over the last three decades, in vivo physiology has established that the modulation of signal processing by the internal brain dynamics is a hallmark of cortical function (Arieli et al., 1996).
 Since the early/seminal evidence that the ongoing dynamics of neural activity was critically shaping cortical computations [1], much effort has been devoted to the understanding of the functional role of such a phenomenon. Recent research in awake rodents has highlighted the correlation between behavioral and physiological states and specific network regimes in neocortex [2,3]. Such findings thus led to the idea that the regimes of cortical activity are the substrate underlying the functional flexibility 
 In this paper, we tackle this question with theoretical modeling of spiking network dynamics to focus our investigation on spike-based computation.
 
@@ -26,25 +26,30 @@ The circuits and mechanisms have been the fo
 We embed a subpopulation of layer 5 excitatory neurons with oscillatory ionic currents, giving them the ability to display the rhythmic spiking , similarly to findings under anesthesia. 
 For the rhythmic part, we adapt
 
-
-To derive a general dynamical picture and prevent the emergent dynamics to depend on specific biophysical parameters, we set all cellular and synaptic parameters identical. The only degree of freedom in this minimal model of the cortical assembly is the connectivity 
+To derive a general dynamical picture and prevent the emergent dynamics to depend on specific assymetries of biophysical parameters, we set all cellular and synaptic parameters identical. The only degree of freedom shaping individual population dynamics in this minimal model of the cortical assembly is the connectivity 
   The equation for the neuron i was:
 \begin{equation}
 C_m \frac{dV}{dt} =\frac{1}{Rm} \, (V_m-E_L) + I_{syn}(t) 
 \end{equation}
 The membrane parameters were $E_L$=-75mv, $C_m$=200pF, Rm =100MΩ, Vthre=-50mV and Vreset=EL, and Isyn(t) is the total synaptic currents targeting a neuron. The synaptic 
 
-We use an analytical reduction of the network dynamics, also known as a mean-field description, to perform the connectivity parameter search. Those estimates were confirmed by numerical simulations of the spiking network.
-
-
-
+Following evidences of subcortical control (Reimer et al., 2014a), I hypothesize a single variable controlling arousal-mediated, capturing cholinergic input
+we investigate the dynamics as function of this variable
 
 Fig 1. 
+
+
+To explore the network dynamics in this 49-dimensional space (7x7 connectivity probabilities), we make use of the analytical reduction of the network dynamics as numerical investigations is too computationnally expensive (intractable/prohibitove/unfeasible). Such an analytical reduction of the network dynamics, also known as a mean-field description, to perform the connectivity parameter search. Those estimates were confirmed by numerical simulations of the spiking network.
+
+
+Remarkably we found that the connnectivity schemes allowing the closely resemble the canonical scheme of cortical circuit (Jiang et al., 2015), we therefore identify (see Figure {1})
+
+
 At that point, two crucial questions emerge. What is the functional role of the non-zero endogenous activity found at low arousal ? Such rhythmic pattern make it difficult to be optimal for the transmission of sensory-evoked activity. 
 Given the ability of a cortical network to adapt its functional mode, there is the need for a downstream network to decode such mode so that the readout process can be modulated as well. How does that decoding works and what insures it's reliability ?
  one might hypo . I therefore tested the ability of the resting state pattern to disambiguate the decoding of a 
 Unambiguous state switch 
-This was implemented by considering alternative scenari to the "U-model" of cortical states (found for other ). 
+This was implemented by considering alternative scenari to the "U-model" of cortical states (found for other configuration, see Figure {1}). 
  network model 
 
 
@@ -173,14 +178,17 @@ Generate the figure with the file \texttt{surface\_plot.py} from the \texttt{gra
 
 * Tables
 
-*** Caption for the first table
+*** Model parameters
 #+options : {'label':'Tab1', 'extent':'singlecolumn'}
 Subcaption for the first table
-| Name    |    Phone | Age |
-|---------+----------+-----|
-| Peter   | {blabla} |  17 |
-| Anna    |     4321 |  25 |
-| Patrick |     4321 |  25 |
+| Name    | Description | Value | Unit |
+|---------+-------------+-------+------|
+|         | \textbf{}   |       |      |
+|---------+-------------+-------+------|
+| Peter   | {blabla}    |    17 |      |
+| Anna    | 4321        |    25 |      |
+| Patrick | 4321        |    25 |      |
+|---------+-------------+-------+------|
 \begin{tabular}{l|r|r}
 Name & Phone & Age\\
 \hline
@@ -215,84 +223,10 @@ none & 0 & 0 & 0 & 0\\
 \end{tabular}
 \end{center}
 
-* Discussion
+* Other
 
-Lorem ipsum dolor sit amet, consectetuer adipisc- ing elit. Etiam lobortis facilisis sem. Nullam nec mi et neque pharetra sollicitudin. Praesent im- perdiet mi nec ante. Donec ullamcorper, felis non sodales commodo, lectus velit ultrices augue, a dig- nissim nibh lectus placerat pede. Vivamus nunc nunc, molestie ut, ultricies vel, semper in, velit.  Ut porttitor. Praesent in sapien. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Duis fringilla tristique neque. Sed interdum libero ut metus. Pellentesque placerat. Nam rutrum augue a leo. Morbi sed elit sit amet ante lobortis sollici- tudin. Praesent blandit blandit mauris. Praesent lectus tellus, aliquet aliquam, luctus a, egestas a, turpis. Mauris lacinia lorem sit amet ipsum. Nunc quis urna dictum turpis accumsan semper.Lorem ipsum dolor sit amet, consectetuer adipisc- ing elit. Etiam lobortis facilisis sem. Nullam nec mi et neque pharetra sollicitudin. (Telenczuk et al., 2017; Destexhe et al., 2003; Chance et al., 2002). Reference to to Table {Tab2} and Equation {eq1} and Figure {Fig1}.
+** Long abstract
 
-* Supplementary
-** Supplementary Text
-*** Section talking abour first supplementary result
-
-Lorem ipsum dolor sit amet, consectetuer adipisc-
-ing elit. Etiam lobortis facilisis sem. Nullam nec
-mi et neque pharetra sollicitudin. Praesent im-
-perdiet mi nec ante. Donec ullamcorper, felis non
-sodales commodo, lectus velit ultrices augue, a dig-
-nissim nibh lectus placerat pede. Vivamus nunc
-nunc, molestie ut, ultricies vel, semper in, velit.
-Ut porttitor. Praesent in sapien. Lorem ipsum
-dolor sit amet, consectetuer adipiscing elit. Duis
-fringilla tristique neque. Sed interdum libero ut
-metus. Pellentesque placerat. Nam rutrum augue
-a leo. Morbi sed elit sit amet ante lobortis sollici-
-tudin. Praesent blandit blandit mauris. Praesent
-lectus tellus, aliquet aliquam, luctus a, egestas a,
-turpis. Mauris lacinia lorem sit amet ipsum. Nunc
-quis urna dictum turpis accumsan semper.
-
-\begin{equation}
-\left\{
-\begin{split}
-& \frac{\partial^2 d}{\partial t ^2} = -x^3 \\
-& \sum_{x} 1/x^2 \rightarrow y
-\end{split}
-\right.
-\end{equation}
-
-** Supplementary Figures
-
-*** Caption for first supplementary figure.
-#+options : {'label':'Fig1', 'extent':'singlecolumn', 'file':'/Users/yzerlaut/work/graphs/fig2.png'}
-(a) Generate the figure with : \url{python_code/script.py} Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Etiam lobortis facilisis sem. (b) Nullam necmi et neque pharetra sollicitudin. Praesent im-perdiet mi nec ante. Donec ullamcorper, felis nonsodales commodo, lectus velit ultrices augue, a dig-nissim nibh lectus placerat pede. Vivamus nuncnunc, molestie ut, ultricies vel, semper in, velit.Ut porttitor. Praesent in sapien. (c) Lorem ipsumdolor sit amet, consectetuer adipiscing elit. Duisfringilla tristique neque. Sed interdum libero utmetus. Pellentesque placerat. Nam rutrum auguea leo. Morbi sed elit sit amet ante lobortis sollici-tudin. Praesent blandit blandit mauris. Praesentlectus tellus, aliquet aliquam, luctus a, egestas a,turpis. Mauris lacinia lorem sit amet ipsum. Nuncquis urna dictum turpis accumsan semper.
-
-** Supplementary Tables
-
-*** Caption for the first supplementary table
-#+options : {'label':'sTab1', 'extent':'singlecolumn'}
-\begin{tabular}{lrr}
-Name & Phone & Age\\
-\hline
-Peter & \{blabla\} & 17\\
-Anna & 4321 & 25\\
-Patrick & 4321 & 25\\
-\end{tabular}
-
-# | Name    |    Phone | Age |
-# |---------+----------+-----|
-# | Peter   | {blabla} |  17 |
-# | Anna    |     4321 |  25 |
-# | Patrick |     4321 |  25 |
-
-* Key Points
-
-\item writing scientific papers 
-\item using meta-anaysis file for paper results
-\item different styles of paper formatting
-* Notes /not exported/
-
-** Constructing tables
-| Name    | Phone | Age |
-|---------+-------+-----|
-| Peter   |  1234 |  17 |
-| Anna    |  4321 |  25 |
-| Patrick |  4321 |  25 |
-
-
-*** Caption for second figure.
-#+options : {'label':'Fig2', 'sidecap':(.5,.02,.4), 'extent':'doublecolumn', 'file':'/Users/yzerlaut/work/graphs/fig2.png'}
-(a) Generate the figure with : =python code/script.py= Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Etiam lobortis facilisis sem. (b) Nullam necmi et neque pharetra sollicitudin. Praesent im-perdiet mi nec ante. Donec ullamcorper, felis nonsodales commodo, lectus velit ultrices augue, a dig-nissim nibh lectus placerat pede. Vivamus nuncnunc, molestie ut, ultricies vel, semper in, velit.Ut porttitor. Praesent in sapien. (C) Lorem ipsumdolor sit amet, consectetuer adipiscing elit. Duisfringilla tristique neque. Sed interdum libero utmetus. Pellentesque placerat. Nam rutrum auguea leo. Morbi sed elit sit amet ante lobortis sollici-tudin. Praesent blandit blandit mauris. Praesentlectus tellus, aliquet aliquam, luctus a, egestas a,turpis. Mauris lacinia lorem sit amet ipsum. Nuncquis urna dictum turpis accumsan semper.
-
-*** Caption for third figure.
-#+options : {'scale':1., 'label':'Fig3', 'extent':'doublecolumn', 'file':'/Users/yzerlaut/work/graphs/fig.png'}
-(A) Lorem ipsumdolor sit amet in *B* and *C*, consectetuer adipiscing elit. Duisfringilla tristique neque. Sed interdum libero utmetus. Pellentesque placerat. Nam rutrum auguea leo. Morbi sed elit sit amet ante lobortis sollici-tudin. Praesent blandit blandit mauris. (B) Praesentlectus tellus, aliquet aliquam, luctus a, egestas a,turpis. Mauris lacinia lorem sit amet ipsum. (C) Nuncquis urna dictum turpis accumsan semper.
-
+Despite the large body of experimental work highlighting the critical role of state-dependent computations in the awake cortex, a theoretical framework providing a mechanistic and functional description of this phenomenon is still lacking. The present study builds a minimal spiking network model of a local cortical assembly and examines its dynamical and computational properties. It is first shown that a weak intrinsic rhythmicity coupled with competing inhibitory and disinhibitory circuits allow recurrent spiking networks to generate the set of dynamical regimes known as the “U-model” of cortical states: the regimes observed at various arousal levels in rodent sensory cortices. We then test the functional specificity of such network states in two vision-inspired tasks. In a natural scene discrimination task, the network encoding is found to be optimal (high-reliability) when displaying the sparse activity regime associated to intermediate arousal levels. In a low contrast detection task, the network is optimally detecting (highly-sensitive) when displaying the high-sensitivity dense activity regime found at high arousal levels. Finally, the model proposes a functional role for the rhythmic activity characterizing the idling cortex, it insures unambiguous transitions between the high-reliability and high-sensitivity modes of cortical activity. This theoretical analysis suggests that the key functional constraint governing cortical dynamics and function is the switch between high-reliablity and high-sensitivity modes of recurrent dynamics and 
+demonstrates that spike-based interactions in recurrent networks allow to implement a switch between high-reliability and high-sensitivity modes of recurrent and suggests that 
+such strategy.
