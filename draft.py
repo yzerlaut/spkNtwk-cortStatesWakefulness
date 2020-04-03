@@ -36,8 +36,6 @@ else:
     ########### BUILD POPS ################
     #######################################
     
-    # NTWK = ntwk.build_populations(Model, ['Exc', 'PvInh', 'VipInh'],
-    #                               AFFERENT_POPULATIONS=['AffExc'],
     NTWK = ntwk.build_populations(Model, REC_POPS,
                                   AFFERENT_POPULATIONS=AFF_POPS,
                                   with_raster=True,

@@ -1,8 +1,8 @@
 import sys, pathlib
 import numpy as np
 sys.path.append(str(pathlib.Path(__file__).resolve()))
-# from neural_network_dynamics.mean_field import find_fp, solve_mean_field_first_order
-from neural_network_dynamics.main import *
+
+import neural_network_dynamics.main as ntwk
 
 from model import Model, REC_POPS, AFF_POPS
 
@@ -10,9 +10,39 @@ from model import Model, REC_POPS, AFF_POPS
 for pop in REC_POPS:
     Model['COEFFS_%s' % pop] = np.load('neural_network_dynamics/configs/The_Spectrum_of_Asynch_Dyn_2018/COEFFS_RecExc.npy')
 
-    
-if __name__=='__main__':
 
+if sys.argv[-1]=='tf-sim':
+    
+    Model['filename'] = 'data/tf_data.npy'
+    Model['NRN_KEY'] = 'pyrExc' # we scan this population
+    
+    Model['tstop'] = 30000
+    
+    Model['N_SEED'] = 4 # seed repetition
+    
+    Model['POP_STIM'] = ['pyrExc', 'recInh']
+    
+    Model['F_pyrExc_array'] = np.logspace(np.log10(0.05), np.log10(50), 70)
+    Model['F_recInh_array'] = np.logspace(np.log10(0.05), np.log10(50), 50)
+    
+    ntwk.generate_transfer_function(Model)
+    
+    print('Results of the simulation are stored as:', 'data/tf_data.npy')
+
+elif sys.argv[-1]=='tf-plot':
+    
+    data = np.load('data/tf_data.npy', allow_pickle=True).item()
+    ntwk.make_tf_plot_2_variables(data,
+                                  xkey='F_pyrExc', ckey='F_recInh',
+                                  ylim=[1e-1, 100], yticks=[0.1, 1, 10], yticks_labels=['0.01', '0.1', '1', '10'], ylabel='$\\nu_{out}$ (Hz)',
+                                  xticks=[0.1, 1, 10], xticks_labels=['0.1', '1', '10'], xlabel='$\\nu_{e}$ (Hz)')
+    ntwk.show()
+    
+    
+    
+    
+else:
+    
     from graphs.my_graph import graphs
     mg = graphs()
 

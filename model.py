@@ -10,7 +10,7 @@ mg = graphs() # initiate a custom plotting environment
 ## ------------- with recurrent connections ----------------- ##
 ################################################################
 
-REC_POPS = ['Exc', 'oscillExc', 'PvInh', 'SstInh', 'VipInh']
+REC_POPS = ['pyrExc', 'oscillExc', 'recInh', 'dsInh']
 AFF_POPS = ['AffExc', 'NoiseExc']
 
 # adding the same LIF props to all recurrent pops
@@ -25,8 +25,7 @@ Model = {
     ## (arbitrary and unconsistent, so see code)
     ## ------------------------------------------
     # numbers of neurons in population
-    'N_Exc':4000, 'N_PvInh':500, 'N_VipInh':500, 'N_AffExc':100,
-    'N_SstInh':500, 'N_NoiseExc':200, 'N_oscillExc':100,
+    'N_pyrExc':4000, 'N_recInh':1000, 'N_dsInh':500, 'N_AffExc':100, 'N_NoiseExc':200, 'N_oscillExc':100,
     # synaptic time constants
     'Tse':5., 'Tsi':5.,
     # synaptic reversal potentials
@@ -42,15 +41,15 @@ for pop in REC_POPS:
         Model['%s_%s' % (pop, key)] = val
 # adding the oscillatory feature to the oscillExc pop
 Model['oscillExc_Ioscill_freq']=3.
-Model['oscillExc_Ioscill_amp']= 10.*20.
+Model['oscillExc_Ioscill_amp']= 10.*15.
 
 # === adding synaptic weights ===
 Qe, Qi = 2., 10 # nS
 # loop oover the two population types
-for aff in ['Exc', 'oscillExc', 'NoiseExc', 'AffExc']:
+for aff in ['pyrExc', 'oscillExc', 'NoiseExc', 'AffExc']:
     for target in REC_POPS:
         Model['Q_%s_%s' % (aff, target)] = Qe
-for aff in ['PvInh', 'SstInh', 'VipInh']:
+for aff in ['recInh', 'dsInh']:
     for target in REC_POPS:
         Model['Q_%s_%s' % (aff, target)] = Qi
 
@@ -62,39 +61,29 @@ for aff in REC_POPS+AFF_POPS:
 # -------------------------------
 # --- connectivity parameters ---
 # -------------------------------
-# ==> Exc
-Model['p_Exc_Exc'] = 0.03
-Model['p_Exc_PvInh'] = 0.03
-Model['p_Exc_SstInh'] = 0.03
+# ==> pyrExc
+Model['p_pyrExc_pyrExc'] = 0.01
+Model['p_pyrExc_oscillExc'] = 0.01
+Model['p_pyrExc_recInh'] = 0.02
 # ==> oscillExc
-Model['p_oscillExc_oscillExc'] = 0.05
-Model['p_oscillExc_Exc'] = 0.1
-Model['p_oscillExc_PvInh'] = 0.1
-# ==> PvInh
-Model['p_PvInh_PvInh'] = 0.03
-Model['p_PvInh_SseInh'] = 0.03
-Model['p_PvInh_Exc'] = 0.03
-# Model['p_PvInh_SstInh'] = 0.
-# Model['p_PvInh_VipInh'] = 0.1
-Model['p_PvInh_oscillExc'] = 0.3
-# ==> SstInh
-Model['p_SstInh_Exc'] = 0.03
-# Model['p_SstInh_PvInh'] = 0.05
-# Model['p_SstInh_oscillExc'] = 0.2
-# ==> VipInh
-Model['p_VipInh_SstInh'] = 0.05
-# Model['p_VipInh_PvInh'] = 0.05
-# Model['p_VipInh_oscillExc'] = 0.05
+Model['p_oscillExc_oscillExc'] = 0.01
+# Model['p_oscillExc_pyrExc'] = 0.02
+# Model['p_oscillExc_recInh'] = 0.02
+# ==> recInh
+Model['p_recInh_recInh'] = 0.05
+Model['p_recInh_pyrExc'] = 0.05
+Model['p_recInh_oscillExc'] = 0.1
+# ==> dsInh
+Model['p_dsInh_recInh'] = 0.1
 # ==> AffExc
-Model['p_AffExc_VipInh'] = 0.2
-Model['p_AffExc_PvInh'] = 0.2
-Model['p_AffExc_Exc'] = 0.2
+Model['p_AffExc_dsInh'] = 0.2
+Model['p_AffExc_recInh'] = 0.2
+Model['p_AffExc_pyrExc'] = 0.05
 # ==> NoiseExc
-Model['p_NoiseExc_PvInh'] = 0.1
-# Model['p_NoiseExc_Exc'] = 0.05
-Model['p_NoiseExc_SstInh'] = 0.2
-# Model['p_NoiseExc_VipInh'] = 0.02
-Model['p_NoiseExc_oscillExc'] = 0.1
+Model['p_NoiseExc_recInh'] = 0.1
+Model['p_NoiseExc_pyrExc'] = 0.02
+Model['p_NoiseExc_dsInh'] = 0.02
+Model['p_NoiseExc_oscillExc'] = 0.2
 
 if __name__=='__main__':
 

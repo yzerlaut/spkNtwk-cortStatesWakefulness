@@ -17,7 +17,6 @@ strategy to reliably switch between high-reliability and high-sensitivity modes 
 This theoretical work demonstrates that spike-based interactions in recurrent networks allow to implement a reliable switch between high-reliability and high-sensitivity modes of signal processing. This suggests that this principle is the key functional constraint governing cortical operation in the awake cortex.
 
 * Main text
-
 *** Intro
 A puzzling aspect of cortical processing is its, unlike artificial intelligence systems relying on 
 
@@ -28,7 +27,6 @@ In this paper, we tackle this question with theoretical modeling of spiking netw
 Recent investigation in the cortex of awake rodents have made this 
 In parallel, psychophysical studies have pinpointed the critical role of the behavioral and physiological state in controlling perception.  
 The circuits and mechanisms have been the fo
-
 
 *** Dynamics - the U-model of arousal
 
@@ -68,6 +66,14 @@ The largest inhibitory population was found to highly connect to pyramidal cell,
 
 The second largest population was providing tonic inhibition during rhythmic periods and decreased
 
+Finally, it should be noted that a 5 population model containing the three stereotypical inhibitory populations (PV, SST, VIP) could display the same behavior with .
+
+*** Function - introducing the visual task
+
+*** Function - introducing the visual task
+
+*** Role of rhythmic
+
 At that point, two crucial questions emerge. What is the functional role of the non-zero endogenous activity found at low arousal ? Such rhythmic pattern make it difficult to be optimal for the transmission of sensory-evoked activity. 
 Given the ability of a cortical network to adapt its functional mode, there is the need for a downstream network to decode such mode so that the readout process can be modulated as well. How does that decoding works and what insures it's reliability ?
  one might hypo . I therefore tested the ability of the resting state pattern to disambiguate the decoding of a 
@@ -82,6 +88,8 @@ it serves as an ongoing to disambiguate the switch to function-specific sparse a
 Because the two function-specific desynchronized regimes are either a globally more inhibited or a globally more activated state with respect to the rhythmic pattern,  it allows an unambiguous and reliable decoding of network state modulation by a recipient network.
 
 Fig 4. A spiking network model for the cortical states of wakefulness: architecture and dynamical regimes. (a) jkfhsakdfh. (b) sakldjfhsdfjh. 
+
+*** Conclusion/Discussion
 
 The first theory of state-dependent perception bridging the scales from membrane potential dynamics to detection of sensory features.
 A spike-based computation
