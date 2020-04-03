@@ -2,46 +2,8 @@ import sys, pathlib
 sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
 import neural_network_dynamics.main as ntwk
 import numpy as np
-
+from analyz.processing.signanalysis import smooth
 from model import Model, REC_POPS, AFF_POPS
-
-
-# -------------------------------
-# --- connectivity parameters ---
-# -------------------------------
-# ==> Exc
-Model['p_Exc_Exc'] = 0.02
-Model['p_Exc_PvInh'] = 0.05
-Model['p_Exc_SstInh'] = 0.02
-# ==> oscillExc
-Model['p_oscillExc_oscillExc'] = 0.02
-Model['p_oscillExc_Exc'] = 0.05
-Model['p_oscillExc_PvInh'] = 0.05
-# ==> PvInh
-Model['p_PvInh_PvInh'] = 0.1
-Model['p_PvInh_SstInh'] = 0.05
-Model['p_PvInh_VipInh'] = 0.1
-Model['p_PvInh_Exc'] = 0.05
-Model['p_PvInh_oscillExc'] = 0.05
-# ==> SstInh
-# Model['p_SstInh_Exc'] = 0.05
-# Model['p_SstInh_PvInh'] = 0.05
-Model['p_SstInh_oscillExc'] = 0.05
-# ==> VipInh
-Model['p_VipInh_SstInh'] = 0.05
-Model['p_VipInh_PvInh'] = 0.05
-Model['p_VipInh_oscillExc'] = 0.05
-# ==> AffExc
-Model['p_AffExc_VipInh'] = 0.2
-Model['p_AffExc_PvInh'] = 0.2
-Model['p_AffExc_Exc'] = 0.05
-Model['p_AffExc_oscillExc'] = 0.05
-# ==> NoiseExc
-Model['p_NoiseExc_SstInh'] = 0.2
-Model['p_NoiseExc_PvInh'] = 0.02
-Model['p_NoiseExc_VipInh'] = 0.02
-Model['p_NoiseExc_oscillExc'] = 0.05
-Model['p_NoiseExc_Exc'] = 0.01
 
 
 if sys.argv[-1]=='plot':
@@ -52,7 +14,6 @@ if sys.argv[-1]=='plot':
 
     ## load file
     data = ntwk.load_dict_from_hdf5('draft_data.h5')
-    print(data['p_Exc_Exc'])
     
     # ## plot
     fig, _ = ntwk.raster_and_Vm_plot(data, smooth_population_activity=10.)
@@ -61,20 +22,26 @@ if sys.argv[-1]=='plot':
 
 else:
 
-    Model['tstop'], Model['dt'] = 5000, 0.1
-    t = np.arange(int(Model['tstop']/Model['dt']))*Model['dt']
-    faff = np.array([3*int(tt/1000) for tt in t])
+    ######################
+    ## ----- Run  ----- ##
+    ######################
+    
+    Model['tstop'], Model['dt'] = 6000, 0.1
+    t_array = ntwk.arange(int(Model['tstop']/Model['dt']))*Model['dt']
+    faff = smooth(np.array([4*int(tt/1000) for tt in t_array]), int(200/0.1))
+    
+    fnoise = 3.
 
     #######################################
     ########### BUILD POPS ################
     #######################################
     
+    # NTWK = ntwk.build_populations(Model, ['Exc', 'PvInh', 'VipInh'],
+    #                               AFFERENT_POPULATIONS=['AffExc'],
     NTWK = ntwk.build_populations(Model, REC_POPS,
                                   AFFERENT_POPULATIONS=AFF_POPS,
                                   with_raster=True,
                                   with_Vm=4,
-                                  # with_synaptic_currents=True,
-                                  # with_synaptic_conductances=True,
                                   verbose=True)
 
     ntwk.build_up_recurrent_connections(NTWK, SEED=5, verbose=True)
@@ -86,15 +53,14 @@ else:
     #  time-dep afferent excitation
     for i, tpop in enumerate(REC_POPS): # both on excitation and inhibition
         ntwk.construct_feedforward_input(NTWK, tpop, 'AffExc',
-                                         t, faff,
+                                         t_array, faff,
                                          verbose=True,
                                          SEED=4)
 
-    fnoise = 2.
-    # noise excitation
+    # # noise excitation
     for i, tpop in enumerate(REC_POPS): # both on excitation and inhibition
         ntwk.construct_feedforward_input(NTWK, tpop, 'NoiseExc',
-                                         t, fnoise+0.*t,
+                                         t_array, fnoise+0.*t_array,
                                          verbose=True,
                                          SEED=5)
 

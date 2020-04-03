@@ -10,11 +10,7 @@ from model import Model, REC_POPS, AFF_POPS
 for pop in REC_POPS:
     Model['COEFFS_%s' % pop] = np.load('neural_network_dynamics/configs/The_Spectrum_of_Asynch_Dyn_2018/COEFFS_RecExc.npy')
 
-Model['p_oscillExc_oscillExc'] = 0.05   
-Model['p_oscillExc_Exc'] = 0.05   
-Model['p_oscillExc_PvInh'] = 0.1
-Model['p_PvInh_oscillExc'] = 0.1
-
+    
 if __name__=='__main__':
 
     from graphs.my_graph import graphs

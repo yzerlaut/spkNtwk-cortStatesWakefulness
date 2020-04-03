@@ -1,4 +1,4 @@
-Title: A Spiking Network Model for the Modulation of Cortical Dynamics and Function during Wakefulness
+Title: A Spiking Network Model for the Modulation of Sensory Cortex Dynamics and Function during Wakefulness
 Authors: Yann Zerlaut{1,2}
 Short Title: A spiking model for the modulation of sensation
 Short Authors: Y. Zerlaut
@@ -11,29 +11,47 @@ Data Availability: The integrality of the simulations and analysis of the main a
 
 * Abstract
 
-Despite the large body of experimental work highlighting the critical role of state-dependent computations in the awake cortex, a theoretical framework providing a mechanistic and functional description of this phenomenon is still lacking. The present study builds a minimal spiking network model of a local cortical assembly and examines its dynamical and computational properties. It is first shown that a weak intrinsic rhythmicity coupled with competing inhibitory and disinhibitory circuits allow recurrent spiking networks to generate the set of dynamical regimes known as the “U-model” of cortical states: the regimes observed at various arousal levels in rodent sensory cortices. We then test the functional specificity of such network states in two vision-inspired tasks. In a natural scene discrimination task, the network encoding is found to be optimal (high-reliability) when displaying the sparse activity regime associated to intermediate arousal levels. In a low contrast detection task, the network is optimally detecting (highly-sensitive) when displaying the high-sensitivity dense activity regime found at high arousal levels. Finally, the model proposes a functional role for the rhythmic activity characterizing the idling cortex, it insures unambiguous transitions between the high-reliability and high-sensitivity modes of cortical activity. This theoretical work demonstrates that spike-based interactions in recurrent networks allow to implement a reliable switch between high-reliability and high-sensitivity modes of signal processing. This suggests that this principle is the key functional constraint governing cortical operation in the awake cortex.
+Despite the large body of experimental work highlighting the critical role of state-dependent computations in the awake sensory cortex, a theoretical framework providing a mechanistic and functional description of this phenomenon is still lacking. The present study builds a minimal spiking network model of a local cortical assembly and examines its dynamical and computational properties. It is first shown that a weak intrinsic rhythmicity coupled with competing inhibitory and disinhibitory circuits allow recurrent spiking networks to generate the set of dynamical regimes known as the “U-model” of cortical states: the regimes observed at various arousal levels in rodent sensory cortices. We then test the functional specificity of such network states in two vision-inspired tasks. In a natural scene discrimination task, the network encoding is found to be optimal (high-reliability) when displaying the sparse activity regime associated to intermediate arousal levels. In a low contrast detection task, the network is optimally detecting (highly-sensitive) when displaying the high-sensitivity dense activity regime found at high arousal levels. Finally, the model proposes a functional role for the rhythmic activity characterizing the idling cortex, it insures unambiguous transitions between the high-reliability and high-sensitivity modes of cortical activity. 
+This theoretical model suggests that cortical networks implement an adaptive 
+strategy to reliably switch between high-reliability and high-sensitivity modes and therefore modulate perception in a context-dependent manner.
+This theoretical work demonstrates that spike-based interactions in recurrent networks allow to implement a reliable switch between high-reliability and high-sensitivity modes of signal processing. This suggests that this principle is the key functional constraint governing cortical operation in the awake cortex.
 
 * Main text
 
-Over the last three decades, in vivo physiology has established that the modulation of signal processing by the internal brain dynamics is a hallmark of cortical function (Arieli et al., 1996).
+*** Intro
+A puzzling aspect of cortical processing is its, unlike artificial intelligence systems relying on 
+
+Over the last three decades, in vivo physiology has clearly established that the modulation of signal processing by the internal brain dynamics is a hallmark of cortical function (Arieli et al., 1996).
 Since the early/seminal evidence that the ongoing dynamics of neural activity was critically shaping cortical computations [1], much effort has been devoted to the understanding of the functional role of such a phenomenon. Recent research in awake rodents has highlighted the correlation between behavioral and physiological states and specific network regimes in neocortex [2,3]. Such findings thus led to the idea that the regimes of cortical activity are the substrate underlying the functional flexibility 
 In this paper, we tackle this question with theoretical modeling of spiking network dynamics to focus our investigation on spike-based computation.
 
- Recent investigation in the cortex of awake rodents have made this 
+Recent investigation in the cortex of awake rodents have made this 
 In parallel, psychophysical studies have pinpointed the critical role of the behavioral and physiological state in controlling perception.  
 The circuits and mechanisms have been the fo
 
+
+*** Dynamics - the U-model of arousal
+
 [[Figure {dynamics} around here]]
+
+*** Dynamics - setting up the model
+We first investigate what are the minimal biophysical and circuit ingredients to reproduce the set of cortical regimes during wakefulness as captured by the U-model of arousal. Following an emerging consensus (McGinley et al., 2015a), we define the U-model of cortical states by its $V_m$ signature in pyramidal cells, (Figure {dynamics}a)
+
 
 We embed a subpopulation of layer 5 excitatory neurons with oscillatory ionic currents, giving them the ability to display the rhythmic spiking , similarly to findings under anesthesia. 
 For the rhythmic part, we adapt
 
 To derive a general dynamical picture and prevent the emergent dynamics to depend on specific assymetries of biophysical parameters, we set all cellular and synaptic parameters identical. The only degree of freedom shaping individual population dynamics in this minimal model of the cortical assembly is the connectivity 
-  The equation for the neuron i was:
+
+To capture the effective strength of each circuit components with a single parameter, we set all cellular and synaptic properties as equal and the only degree of freedom of the model is the 7x5 connectivity matrix (). 
+
+The equation for the neuron i was:
 \begin{equation}
 C_m \frac{dV}{dt} =\frac{1}{Rm} \, (V_m-E_L) + I_{syn}(t) 
 \end{equation}
 The membrane parameters were $E_L$=-75mv, $C_m$=200pF, Rm =100MΩ, Vthre=-50mV and Vreset=EL, and Isyn(t) is the total synaptic currents targeting a neuron. The synaptic 
+
+*** Dynamics - investigation
 
 Following evidences of subcortical control (Reimer et al., 2014a), I hypothesize a single variable controlling arousal-mediated, capturing cholinergic input
 we investigate the dynamics as function of this variable
@@ -42,14 +60,13 @@ Fig 1.
 
 To explore the network dynamics in this 49-dimensional space (7x7 connectivity probabilities), we make use of the analytical reduction of the network dynamics as numerical investigations is too computationnally expensive (intractable/prohibitove/unfeasible). Such an analytical reduction of the network dynamics, also known as a mean-field description, to perform the connectivity parameter search. Those analytical estimates were confirmed by numerical simulations of the spiking network, in particular the optimal configuration was found 
 
+*** Dynamics - Results
 
 Remarkably we found that the connnectivity schemes allowing the closely resemble the canonical scheme of cortical circuit (Jiang et al., 2015), we therefore identify (see Figure {1})
 
 The largest inhibitory population was found to highly connect to pyramidal cell, to balance the recurrent dynamics at high-activity level (see current weight inset in Figure {dynamics}e(ii)), i.e. matching the PV basket-cell type of inhibition.
 
 The second largest population was providing tonic inhibition during rhythmic periods and decreased
-
-
 
 At that point, two crucial questions emerge. What is the functional role of the non-zero endogenous activity found at low arousal ? Such rhythmic pattern make it difficult to be optimal for the transmission of sensory-evoked activity. 
 Given the ability of a cortical network to adapt its functional mode, there is the need for a downstream network to decode such mode so that the readout process can be modulated as well. How does that decoding works and what insures it's reliability ?
