@@ -29,10 +29,19 @@ if sys.argv[-1]=='tf-sim':
     
     print('Results of the simulation are stored as:', 'data/tf_data.npy')
 
+elif sys.argv[-1]=='tf-fit':
+    
+    data = np.load('data/tf_data.npy', allow_pickle=True).item()
+
+    # from neural_network_dynamics.theory.fitting_tf import fit_data
+    data['Model']['COEFFS'] = ntwk.fit_tf_data(data, order=2)
+    np.save('data/COEFFS_neuron.npy', data['Model']['COEFFS'])
+    
+    
 elif sys.argv[-1]=='tf-plot':
     
     data = np.load('data/tf_data.npy', allow_pickle=True).item()
-    print(data.keys())
+
     data['Fout_mean'][data['Fout_mean']<=1e-2]=1e-2
     data['Fout_std'][data['Fout_mean']<=1e-2]=0
 
