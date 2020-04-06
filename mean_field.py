@@ -32,13 +32,22 @@ if sys.argv[-1]=='tf-sim':
 elif sys.argv[-1]=='tf-plot':
     
     data = np.load('data/tf_data.npy', allow_pickle=True).item()
+    print(data.keys())
+    data['Fout_mean'][data['Fout_mean']<=1e-2]=1e-2
+    data['Fout_std'][data['Fout_mean']<=1e-2]=0
+
+    from datavyz.main import graph_env
+    ge = graph_env('manuscript')
+    fig, ax, acb = ge.figure(figsize=(1.5,1.2), bar_inset_loc=[1.1, 0., .05, 1.],
+                             right=5, bottom=0.8)
+    
     ntwk.make_tf_plot_2_variables(data,
+                                  ge=ge, ax=ax, acb=acb,
                                   xkey='F_pyrExc', ckey='F_recInh',
-                                  ylim=[1e-1, 100], yticks=[0.1, 1, 10], yticks_labels=['0.01', '0.1', '1', '10'], ylabel='$\\nu_{out}$ (Hz)',
-                                  xticks=[0.1, 1, 10], xticks_labels=['0.1', '1', '10'], xlabel='$\\nu_{e}$ (Hz)')
+                                  ylim=[1e-2, 80], yticks=[0.01, 0.1, 1, 10], yticks_labels=['<0.01', '0.1', '1', '10'], ylabel='$\\nu_{out}$ (Hz)',
+                                  xlim=[2, 100], xticks=[2, 5, 10, 20, 50], xticks_labels=['2', '5', '10', '20', '50'], xlabel='$\\nu_{e}$ (Hz)',
+                                  fig_args={'figsize':(1.5,1.5), 'with_space_for_bar_legend':True})
     ntwk.show()
-    
-    
     
     
 else:
