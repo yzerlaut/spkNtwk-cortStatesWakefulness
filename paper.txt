@@ -267,6 +267,13 @@ none & 0 & 0 & 0 & 0\\
 \end{tabular}
 \end{center}
 
+* Supplementary Figures
+
+*** Transfer function determination. 
+#+options : {'label':'tf', 'extent':'singlecolumn', 'file':'figures/tf.png'}
+(a) Example simulation of single cell activity with the simulated presynaptic spikes and resulting synaptic currents and $V_m$ fluctuations.
+(b) Resulting transfer function and its analytical fit.
+
 * Other
 
 ** Long abstract
