@@ -33,7 +33,6 @@ elif sys.argv[-1]=='tf-fit':
     np.save('data/COEFFS_pyrExc.npy', data['Model']['COEFFS'])
     
     
-    
 elif sys.argv[-1]=='tf-sim-demo':
 
     Model['filename'] = 'data/tf_data.npy'
@@ -49,11 +48,18 @@ elif sys.argv[-1]=='tf-sim-demo':
 
     data = ntwk.run_single_cell_sim(Model, with_synaptic_currents=True, with_Vm=1, tdiscard=100)
     fig, AX = ntwk.plot_single_cell_sim(data)
-    AX[-1].annotate('$\\nu_{e}$=%.1fHz, $\\nu_{i}$=%.1fHz    -->   $\\nu_{out}$=%.1fHz' %\
-                   (Model['F_pyrExc'], Model['F_recInh'], data['fout_mean']),
-                    (0.5,1), xycoords='axes fraction', ha='center')
+    AX[1].annotate('$\\nu_{e}$=%.1fHz, $N_e$=%i, $p_{ee}$=%.2f  --> $\\nu_{e}^{tot}$=%.1fHz' %\
+                   (Model['F_pyrExc'], Model['N_pyrExc'], Model['p_pyrExc_pyrExc'],
+                    Model['F_pyrExc']*Model['N_pyrExc']*Model['p_pyrExc_pyrExc']),
+                    (0.,1), xycoords='axes fraction')
+    AX[1].annotate('$\\nu_{i}$=%.1fHz, $N_i$=%i, $p_{ie}$=%.2f  --> $\\nu_{i}^{tot}$=%.1fHz' %\
+                   (Model['F_recInh'], Model['N_recInh'], Model['p_recInh_pyrExc'],
+                    Model['F_recInh']*Model['N_recInh']*Model['p_recInh_pyrExc']),
+                    (0.,0.), xycoords='axes fraction')
+    AX[2].annotate('$\\nu_{out}$=%.1fHz' % data['fout_mean'],
+                    (0.9,.9), xycoords='axes fraction', ha='center', va='top')
     fig.savefig('figures/tf_demo_sim.svg')
-    # ntwk.show()
+    ntwk.show()
     
 elif sys.argv[-1]=='tf-plot':
     
