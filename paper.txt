@@ -56,7 +56,12 @@ we investigate the dynamics as function of this variable
 
 Fig 1. 
 
-To explore the network dynamics in this 49-dimensional space (7x7 connectivity probabilities), we make use of the analytical reduction of the network dynamics as numerical investigations is too computationnally expensive (intractable/prohibitove/unfeasible). Such an analytical reduction of the network dynamics, also known as a mean-field description, to perform the connectivity parameter search. Those analytical estimates were confirmed by numerical simulations of the spiking network, in particular the optimal configuration was found 
+To explore the network dynamics in this 49-dimensional space (7x7 connectivity probabilities), we make use of the analytical reduction of the network dynamics as numerical investigations is too computationnally expensive (intractable/prohibitove/unfeasible). 
+investigate network dynamics at the time scale of network state modulation (>1s)
+
+Such an analytical reduction of the network dynamics, also known as a mean-field description, to perform the connectivity parameter search. Those analytical estimates were confirmed by numerical simulations of the spiking network, in particular the optimal configuration was found 
+
+
 
 *** Dynamics - Results
 

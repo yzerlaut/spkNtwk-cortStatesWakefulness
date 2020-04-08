@@ -102,14 +102,12 @@ elif sys.argv[-1]=='tf-plot':
                                   xlabel='$\\nu_{e}^{tot}$ (Hz)',
                                   ckey_label='$\\nu_{i}^{tot}$ (Hz)',
                                   ge=ge, ax=ax, acb=acb)
+    
     # fig.savefig('figures/tf_final_plot.svg')
-
-
     # from datavyz.plot_export import put_list_of_figs_to_svg_fig
     # put_list_of_figs_to_svg_fig(['figures/tf_demo_sim.svg',
     #                              'figures/tf_final_plot.svg'],
     #                             fig_name="figures/tf.svg")
-    
     ntwk.show()
     
     

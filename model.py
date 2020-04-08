@@ -56,7 +56,7 @@ for aff in ['recInh', 'dsInh']:
 # === initializing connectivity === #         
 for aff in REC_POPS+AFF_POPS:
     for target in REC_POPS:
-        Model['p_%s_%s' % (aff, target)] = 0.
+        Model['p_%s_%s' % (aff, target)] = 0.01 # minimal connectivity by default
 
 # -------------------------------
 # --- connectivity parameters ---
