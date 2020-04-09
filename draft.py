@@ -13,21 +13,26 @@ from model import Model, REC_POPS, AFF_POPS
 
 if sys.argv[-1]=='plot':
 
+
+    
     ######################
     ## ----- Plot ----- ##
     ######################
 
-    ## load file
-    data = ntwk.load_dict_from_hdf5('draft_data.h5')
+    # ## load file
+    # data = ntwk.load_dict_from_hdf5('draft_data.h5')
     
-    # ## plot
-    fig, _ = ntwk.activity_plots(data,
-                                 smooth_population_activity=10)
+    # # ## plot
+    # fig, _ = ntwk.activity_plots(data,
+    #                              smooth_population_activity=10)
     
-    ntwk.show()
+    # ntwk.show()
 
 elif sys.argv[-1]=='mf':
 
+    mf = ntwk.FastMeanField(Model, REC_POPS, AFF_POPS)
+
+    
     data = ntwk.load_dict_from_hdf5('draft_data.h5')
     tstop, dt = 1e-3*data['tstop'], 1e-2
     subsampling = int(dt/(1e-3*data['dt']))
@@ -80,15 +85,16 @@ elif sys.argv[-1]=='mf':
 
 else:
 
+
     ######################
     ## ----- Run  ----- ##
     ######################
     
     Model['tstop'], Model['dt'] = 6000, 0.1
+
     t_array = ntwk.arange(int(Model['tstop']/Model['dt']))*Model['dt']
-    faff = smooth(np.array([4*int(tt/1000) for tt in t_array]), int(200/0.1))
-    
-    fnoise = 3.
+    faff =  ntwk.stim_waveforms.IncreasingSteps(t_array, 'AffExc', Model, translate_to_SI=False)
+    fnoise = 3.+0*t_array
 
     #######################################
     ########### BUILD POPS ################
@@ -113,11 +119,10 @@ else:
                                          t_array, faff,
                                          verbose=True,
                                          SEED=4)
-
     # # noise excitation
     for i, tpop in enumerate(REC_POPS): # both on excitation and inhibition
         ntwk.construct_feedforward_input(NTWK, tpop, 'NoiseExc',
-                                         t_array, fnoise+0.*t_array,
+                                         t_array, fnoise,
                                          verbose=True,
                                          SEED=5)
 
