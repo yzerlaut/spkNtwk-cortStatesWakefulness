@@ -30,6 +30,8 @@ The circuits and mechanisms have been the fo
 
 *** Dynamics - the U-model of arousal
 
+The U-model of arousal is defined by a $V_m$ pattern in pyramidal cells as this quantitiy has been evidenced as a robust experimental signature of cortical states (McGinley et al., 2015b). 
+
 [[Figure {dynamics} around here]]
 
 *** Dynamics - setting up the model
@@ -59,9 +61,9 @@ Fig 1.
 To explore the network dynamics in this 49-dimensional space (7x7 connectivity probabilities), we make use of the analytical reduction of the network dynamics as numerical investigations is too computationnally expensive (intractable/prohibitove/unfeasible). 
 investigate network dynamics at the time scale of network state modulation (>1s)
 
+The gamma power in the mean-field is approximated by computing the $V_m$ variance due to the inhibitory synaptic events targetting the pyramidal population. 
+
 Such an analytical reduction of the network dynamics, also known as a mean-field description, to perform the connectivity parameter search. Those analytical estimates were confirmed by numerical simulations of the spiking network, in particular the optimal configuration was found 
-
-
 
 *** Dynamics - Results
 
