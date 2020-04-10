@@ -19,8 +19,16 @@ def sort_random_configs(GRID, n=10000):
 
     return CONFIGS
 
-def save_config(CONFIGS):
+def run_sim(CONFIGS):
 
+    RESIDUAL = np.ones(CONFIGS.shape[0])
+    
+    return RESIDUAL
+
+
+def save_config(CONFIGS, RESIDUAL):
+
+    np.save('data/Mscan/test.npy', np.array([CONFIGS, RESIDUAL]))
     
 def launch_search():
     try:
@@ -30,5 +38,9 @@ def launch_search():
         print('Scan stopped')
 
 if __name__=='__main__':
-    # launch_search()        
-    sort_random_configs(GRID, n=1000)
+    # launch_search()
+
+    CONFIGS = sort_random_configs(GRID, n=1000)
+    RESIDUAL = run_sim(CONFIGS)
+    save_config(CONFIGS, RESIDUAL)
+    
