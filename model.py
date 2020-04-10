@@ -74,7 +74,7 @@ Model['p_pyrExc_oscillExc'] = 0.01
 Model['p_pyrExc_recInh'] = 0.02
 # ==> oscillExc
 Model['p_oscillExc_oscillExc'] = 0.01
-# Model['p_oscillExc_pyrExc'] = 0.02
+Model['p_oscillExc_pyrExc'] = 0.05
 # Model['p_oscillExc_recInh'] = 0.02
 # ==> recInh
 Model['p_recInh_recInh'] = 0.05

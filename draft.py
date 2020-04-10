@@ -11,6 +11,9 @@ ge = graph_env()
 COLORS=[ge.g, ge.b, ge.r, ge.purple]
 
 from model import Model, REC_POPS, AFF_POPS
+from Umodel import Umodel
+
+
 
 if sys.argv[-1]=='plot':
 
@@ -34,10 +37,11 @@ elif sys.argv[-1]=='mf':
 
     mf = ntwk.FastMeanField(Model, REC_POPS, AFF_POPS, tstop=6.)
 
-    ge.plot(mf.t, mf.FAFF[1,:])
-    
-    mf.build_TF_func(50, sampling='')
+    mf.build_TF_func(50,
+                     with_Vm_functions=True,
+                     sampling='')
     X = mf.run_single_connectivity_sim(mf.ecMatrix, verbose=True)
+
     
     data = ntwk.load_dict_from_hdf5('draft_data.h5')
     fig, AX = ntwk.activity_plots(data,
@@ -45,8 +49,15 @@ elif sys.argv[-1]=='mf':
                                   smooth_population_activity=10,
                                   pop_act_log_scale=True)
 
+    um = Umodel()
+    AX[2].plot(1e3*mf.t, um.predict_Vm(mf.t, mf.FAFF[0,:])+Model['pyrExc_El'], 'k--')
+    
     for i, label in enumerate(REC_POPS):
         AX[-1].plot(1e3*mf.t, 1e-2+X[i,:], lw=4, color=COLORS[i], alpha=.5)
+        Vm = mf.convert_to_mean_Vm_trace(X, label, verbose=True)
+        AX[i+2].plot(1e3*mf.t, 1e3*Vm, 'k-')
+        AX[i+2].set_ylim([-72,-45])
+        
     
     ge.show()
 
@@ -90,7 +101,15 @@ elif sys.argv[-1]=='old-mf':
 
     for i, pop in enumerate(REC_POPS):
         AX[-1].plot(1e3*t, 1e-2+X[pop], color=COLORS[i], lw=3, alpha=0.6)
+
+
+    um = Umodel()
+    ge.plot(um.predict_Vm(1e-3*t_sim, data['Rate_AffExc_pyrExc']), fig_args={'figsize':(3,1)})
+            
+    ge.show()
     
+
+        
     ge.show()
     
 else:
