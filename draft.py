@@ -37,9 +37,7 @@ elif sys.argv[-1]=='mf':
 
     mf = ntwk.FastMeanField(Model, REC_POPS, AFF_POPS, tstop=6.)
 
-    mf.build_TF_func(50,
-                     with_Vm_functions=True,
-                     sampling='')
+    mf.build_TF_func(100, with_Vm_functions=True, sampling='log')
     X = mf.run_single_connectivity_sim(mf.ecMatrix, verbose=True)
 
     

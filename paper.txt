@@ -61,7 +61,9 @@ Fig 1.
 To explore the network dynamics in this 49-dimensional space (7x7 connectivity probabilities), we make use of the analytical reduction of the network dynamics as numerical investigations is too computationnally expensive (intractable/prohibitove/unfeasible). 
 investigate network dynamics at the time scale of network state modulation (>1s)
 
-The gamma power in the mean-field is approximated by computing the $V_m$ variance due to the inhibitory synaptic events targetting the pyramidal population. 
+gaining 3 orders of magnitude in computation time for a single simulation (from $\sim$10s to $\sim$0.1s)
+
+The wide gamma envelope ([20,80]Hz) in the mean-field is approximated by computing the fraction of the $V_m$ variance due to the inhibitory synaptic events targetting the pyramidal population. 
 
 Such an analytical reduction of the network dynamics, also known as a mean-field description, to perform the connectivity parameter search. Those analytical estimates were confirmed by numerical simulations of the spiking network, in particular the optimal configuration was found 
 
