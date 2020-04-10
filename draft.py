@@ -42,7 +42,6 @@ elif sys.argv[-1]=='mf':
                                   COLORS=COLORS,
                                   smooth_population_activity=10)
 
-
     for i, label in enumerate(REC_POPS):
         AX[-1].plot(1e3*mf.t, X[:,i], lw=4, color=COLORS[i], alpha=.5)
     

@@ -48,7 +48,7 @@ Model['AffExc_IncreasingStep_onset']= 1000 # 200ms delay for onset
 Model['AffExc_IncreasingStep_baseline']= 0.
 Model['AffExc_IncreasingStep_length']= 1000
 Model['AffExc_IncreasingStep_size']= 4.
-Model['AffExc_IncreasingStep_smoothing']= 200
+Model['AffExc_IncreasingStep_smoothing']= 100
 
 # === adding synaptic weights ===
 Qe, Qi = 2., 10 # nS
