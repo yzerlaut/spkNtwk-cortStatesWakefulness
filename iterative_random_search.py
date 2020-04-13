@@ -47,7 +47,11 @@ class InterativeSearch:
 
         self.CONFIGS, self.RESIDUAL = None, None
 
-        self.GRID = GRID0
+        if previous_batch_folder!='batch_test':
+            self.load_results()
+            self.GRID = self.compute_new_grid()
+        else:
+            self.GRID = GRID0
 
         self.Umodel = Umodel() # initialize U-model
 
@@ -63,7 +67,7 @@ class InterativeSearch:
 
         
     ##########################################################################
-    #################    ANAYSIS    ##########################################
+    #################    ANALYSIS    ##########################################
     ##########################################################################
     
     def analyze_previous_batch(self):
@@ -110,13 +114,57 @@ class InterativeSearch:
 
         return fig, ax
 
+    
+    def get_x_best_configs(self, x):
+        
+        indices = np.argsort(self.result['residuals'])[::-1][:int(x)]
+        return [self.result['configs'][i] for i in indices]
+
+    
+    def translate_SynapseMatrix_into_connectivity_proba(self, Matrix, Model, REC_POPS, AFF_POPS):
+
+        for i, source_pop in enumerate(REC_POPS+AFF_POPS):
+            for j, target_pop in enumerate(REC_POPS):
+                Model['p_%s_%s' % (source_pop, target_pop)] = Matrix[i,j]/Model['N_%s' % source_pop]
+                # print('p_%s_%s = %.1f%%' % (source_pop, target_pop,\
+                #                             100*Matrix[i,j]/Model['N_%s' % source_pop]))
+
+
+    def reshape_SynapseMatrix_into_ConnecMatrix(self, Matrix, Model, REC_POPS, AFF_POPS):
+        """
+        uses the population number from "Model" to translate into connectivity
+        """
+        pconnMatrix = 0*Matrix
+        for i, pop in enumerate(REC_POPS+AFF_POPS):
+            N = Model['N_%s' % pop]
+            pconnMatrix[i,:] = Matrix[i,:]/N
+        return pconnMatrix    
 
 
     
     ##########################################################################
     #################    SIMULATION    #######################################
     ##########################################################################
-    def sort_random_configs(self, seed=1, n=10000):
+
+    def compute_new_grid(self,
+                         Nbest_criteria=100,
+                         variance_factor=1.5):
+
+        print('computing new grid from the data of %s [...]' % self.previous_batch_folder)
+        GRID1 = np.zeros((len(REC_POPS)+len(AFF_POPS), len(REC_POPS), 2))
+
+        CONFIGS = np.array(self.get_x_best_configs(Nbest_criteria))
+        for i, spop in enumerate(REC_POPS+AFF_POPS):
+            for j, tpop in enumerate(REC_POPS):
+                mean, std = CONFIGS[:,i,j].mean(), CONFIGS[:,i,j].std()
+                GRID1[i,j,:] = [np.max([1,mean-variance_factor*std]),
+                                np.min([GRID0[i,j,1],mean+variance_factor*std])]
+
+        return GRID1
+    
+    
+    def sort_random_configs(self,
+                            seed=1, n=10000):
 
         if seed is not None:
             np.random.seed(seed)
@@ -153,10 +201,7 @@ class InterativeSearch:
         result = {'Ntot':n, 'configs':[], 'residuals':[]}
         
         CONFIGS = self.sort_random_configs(seed+datetime.datetime.now().microsecond, n=n)
-        CONFIGS[0,:,:] = self.mf.ecMatrix
 
-        print(self.mf.ecMatrix)
-        
         printProgressBar(0, n, prefix = 'Progress:', suffix = 'Complete', length = 50)
         for i in range(n):
             res = self.run_single_sim(CONFIGS[i,:,:])
@@ -204,23 +249,45 @@ if __name__=='__main__':
     if len(sys.argv)==3:
         
         _, protocol, folder = sys.argv
+        folder_prev = 'batch_test'
         
-        if protocol=='-r': # run
-            search = InterativeSearch(Model,
-                                      new_batch_folder=folder,
-                                      run=True)
-            search.launch_search()
-        if protocol=='-a': # analysis
-            from datavyz import ges
-            search = InterativeSearch(Model,
-                                      previous_batch_folder=folder,
-                                      run=False)
-            search.load_results()
-            fig, ax = search.show_residuals_over_trials(ges)
-            ges.show()
+    elif len(sys.argv)==4:
 
-        if protocol=='-t': # test
+        _, protocol, folder_prev, folder = sys.argv
 
+    if protocol=='-r': # run
+        search = InterativeSearch(Model,
+                                  previous_batch_folder=folder_prev,
+                                  new_batch_folder=folder,
+                                  run=True)
+        search.launch_search()
+
+    elif protocol=='-a': # analysis
+        from datavyz import ges
+        search = InterativeSearch(Model,
+                                  previous_batch_folder=folder,
+                                  run=False)
+        search.load_results()
+        fig, ax = search.show_residuals_over_trials(ges)
+        ges.show()
+
+    elif protocol=='-t': # test
+
+        from model import Model, REC_POPS, AFF_POPS
+        from ntwk_sim import run_sim
+        search = InterativeSearch(Model,
+                                  previous_batch_folder=folder,
+                                  run=False)
+        search.load_results()
+
+        for i, M in enumerate(search.get_x_best_configs(10)):
+            print("""
+
+
+            --------------------------------------------------------------------
+            """)
+            search.translate_SynapseMatrix_into_connectivity_proba(M, Model, REC_POPS, AFF_POPS)
+            run_sim(Model, filename=os.path.join('data','batch1','ntwk_%i.h5' % (i+1)))
             
     else:
         print("""
@@ -231,9 +298,9 @@ if __name__=='__main__':
 
 
         """)
-        search = InterativeSearch(Model,
-                                  run=True)
+        search = InterativeSearch(Model, run=True)
         search.run_single_sim(search.mf.ecMatrix)
+        
     # search.run_simulation_set_batch()
     # search.save_config()
     # save_config(CONFIGS, RESIDUAL)
