@@ -3,17 +3,24 @@ import numpy as np
 
 from analyz.workflow.saving import filename_with_datetime
 from analyz.workflow.shell import printProgressBar
-from analyz.IO.npz import save_dict
+from analyz.IO.npz import save_dict, load_dict
 import neural_network_dynamics.main as ntwk
 
 from model import REC_POPS, AFF_POPS, Model
 from Umodel import Umodel
 
-INITIAL_LIMS = [1,40]
+residual_inclusion_threshold = 1000 # above this value of residual, we do not store the config
+INITIAL_LIMS = [[1,1500],
+                [1,80],
+                [1,320],
+                [1,40],
+                [1,40],
+                [1,40]]
+                
 
 GRID0 = np.zeros((len(REC_POPS)+len(AFF_POPS), len(REC_POPS),2))
 for i, j in itertools.product(range(len(REC_POPS)+len(AFF_POPS)), range(len(REC_POPS))):
-    GRID0[i,j,:] = np.array(INITIAL_LIMS)
+    GRID0[i,j,:] = np.array(INITIAL_LIMS[i])
 
                 
 class InterativeSearch:
@@ -55,6 +62,10 @@ class InterativeSearch:
             self.prev_files = [f for f in os.listdir(self.previous_batch_folder) if f.endswith('.npy') ]
 
         
+    ##########################################################################
+    #################    ANAYSIS    ##########################################
+    ##########################################################################
+    
     def analyze_previous_batch(self):
         
         # filename_with_datetime(filename, folder='./', extension='')
@@ -63,7 +74,48 @@ class InterativeSearch:
         pass
 
         
-        
+    def show_residuals_over_trials(self, graph=None, ax=None, threshold=20):
+
+        if graph is None:
+            from datavyz import ges as graph
+        if ax is None:
+            # fig, ax = graph.figure(axes=(1,3), wspace=.2,
+            #                        left=.7, bottom=.7, figsize=(.7,1.))
+            fig, ax = graph.figure(left=.7, bottom=.7, figsize=(.7,1.))
+        else:
+            fig = None
+
+        indices = np.argsort(self.result['residuals'])
+
+        x = self.result['residuals'][indices]/self.result['residuals'].min()
+
+        full_x = np.concatenate([np.arange(1, len(indices)+1)[x<=threshold],
+                                 [len(indices)+1, self.result['Ntot']]])
+        full_y = np.concatenate([x[x<=threshold], [threshold, threshold]])
+
+        ax.plot(np.log10(full_x), np.log10(full_y), clip_on=False)
+        graph.set_plot(ax,
+                       yticks=np.log10([1, 2, 5, 10, 20]),
+                       yticks_labels=['1', '2', '5', '10', '>20'],
+                       yminor_ticks=np.log10([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20]),
+                       ylim=[1, np.log10(threshold)],
+                       xminor_ticks=np.log10(np.concatenate([[i*10**k for i in range(1,10)]\
+                                                             for k in range(0,7)])),
+                       xlim=[np.log10(self.result['Ntot']), -1.],
+                       xticks=np.arange(7),
+                       xticks_labels=['1','','','$10^3$','','','$10^6$'],
+                       xlabel='config #',
+                       ylabel=r'fit $\chi^2$ (norm.)       ', ylabelpad=-7)
+        graph.annotate(ax, '4 pop. model', (.4, 1.2), ha='center')
+
+        return fig, ax
+
+
+
+    
+    ##########################################################################
+    #################    SIMULATION    #######################################
+    ##########################################################################
     def sort_random_configs(self, seed=1, n=10000):
 
         if seed is not None:
@@ -108,7 +160,7 @@ class InterativeSearch:
         printProgressBar(0, n, prefix = 'Progress:', suffix = 'Complete', length = 50)
         for i in range(n):
             res = self.run_single_sim(CONFIGS[i,:,:])
-            if res<1000:
+            if res<residual_inclusion_threshold:
                 result['configs'].append(CONFIGS[i,:,:])
                 result['residuals'].append(res)
             if i%10==0:
@@ -125,7 +177,24 @@ class InterativeSearch:
                 i+=1
         except KeyboardInterrupt:
             print('\nScan stopped !')
-            
+
+
+    def load_results(self):
+
+        self.result = {'Ntot':0, 'configs':[], 'residuals':[]}
+
+        for i, f in enumerate(os.listdir(self.previous_batch_folder)):
+            data = load_dict(os.path.join(self.previous_batch_folder, f))
+            self.result['Ntot'] += data['Ntot']
+            if type(data['residuals']) is float:
+                self.result['configs'] = self.result['configs'] +list([data['configs']])
+                self.result['residuals'] = np.concatenate([self.result['residuals'],[data['residuals']]])
+            else:
+                self.result['configs'] = self.result['configs'] +list(data['configs'])
+                self.result['residuals'] = np.concatenate([self.result['residuals'],data['residuals']])
+
+
+        
 
 if __name__=='__main__':
     
@@ -142,7 +211,17 @@ if __name__=='__main__':
                                       run=True)
             search.launch_search()
         if protocol=='-a': # analysis
-            pass
+            
+            from datavyz import ges
+            search = InterativeSearch(Model,
+                                      previous_batch_folder=folder,
+                                      run=False)
+            search.load_results()
+
+            fig, ax = search.show_residuals_over_trials(ges)
+
+            ges.show()
+            
     else:
         print("""
 
