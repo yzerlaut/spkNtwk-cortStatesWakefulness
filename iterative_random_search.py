@@ -211,16 +211,16 @@ if __name__=='__main__':
                                       run=True)
             search.launch_search()
         if protocol=='-a': # analysis
-            
             from datavyz import ges
             search = InterativeSearch(Model,
                                       previous_batch_folder=folder,
                                       run=False)
             search.load_results()
-
             fig, ax = search.show_residuals_over_trials(ges)
-
             ges.show()
+
+        if protocol=='-t': # test
+
             
     else:
         print("""
