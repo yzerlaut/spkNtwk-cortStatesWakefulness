@@ -6,23 +6,24 @@ import neural_network_dynamics.main as ntwk
 
 from analyz.processing.signanalysis import gaussian_smoothing as smooth
 from analyz.IO.npz import load_dict
-from datavyz.main import graph_env
-ge = graph_env()
+
+# from Umodel import Umodel
+
+from datavyz import ge
 COLORS=[ge.g, ge.b, ge.r, ge.purple, 'k', 'dimgrey']
 
-from model import Model, REC_POPS, AFF_POPS
-from Umodel import Umodel
 
-
-def run_sim(Model, filename='draft_data.h5', verbose=True):
+def run_sim(Model, REC_POPS, AFF_POPS,
+            filename='draft_data.h5', verbose=True):
 
     ######################
     ## ----- Run  ----- ##
     ######################
     
-    Model['tstop'], Model['dt'] = 6000, 0.1
+    # Model['tstop'], Model['dt'] = 6000, 0.1
 
     print('initializing simulation for %s [...]' % filename)
+
     t_array = ntwk.arange(int(Model['tstop']/Model['dt']))*Model['dt']
     faff =  ntwk.stim_waveforms.IncreasingSteps(t_array, 'AffExc', Model, translate_to_SI=False)
     fnoise = Model['F_NoiseExc']+0*t_array
@@ -75,13 +76,15 @@ def run_sim(Model, filename='draft_data.h5', verbose=True):
     print('[ok] Results of the simulation are stored as:', filename)
 
     
-def plot_sim(filename):
+def plot_sim(filename, ge):
     ######################
     ## ----- Plot ----- ##
     ######################
 
     ## load file
     data = ntwk.load_dict_from_hdf5(filename)
+    for key in Model:
+        print(key, '-->', data[key])
     # ## plot
     fig, AX = ntwk.activity_plots(data,
                                   smooth_population_activity=10,
@@ -91,17 +94,16 @@ def plot_sim(filename):
         mf_data = load_dict(filename.replace('ntwk', 'mf').replace('.h5', '.npz'))
         if 't' not in mf_data:
             mf_data['t'] = np.linspace(0, data['tstop'], len(mf_data['Vm']))
-
         for i, label in enumerate(REC_POPS):
             AX[-1].plot(mf_data['t'], mf_data['X'][i,:], '--', lw=0.5, color=COLORS[i])
         # then Vm vs U-model vs MF
-        # AX[2].plot(mf_data['t'], mf_data['desired_Vm'], 'k--', lw=2, label='U-model')
+        AX[2].plot(mf_data['t'], mf_data['desired_Vm'], 'k--', lw=2, label='U-model')
         AX[2].plot(mf_data['t'], mf_data['Vm'], 'k-', lw=5, alpha=.3, label='mean-field')
         AX[2].legend(frameon=False, loc='best')
     except FileNotFoundError:
         pass
         
-    figM, _, _ = plot_matrix(data, REC_POPS, AFF_POPS)
+    figM, _, _ = plot_matrix(data, REC_POPS, AFF_POPS, ge)
     
     ntwk.show()
     # ge.show()
@@ -150,7 +152,8 @@ def plot_matrix(Model, REC_POPS, AFF_POPS):
     
 if __name__=='__main__':
 
-    plot_sim(sys.argv[-1])
+    plot_sim(sys.argv[-1], ge)
+    
     # try:
     #     plot_sim(sys.argv[-1])
     # except BaseException:

@@ -44,6 +44,7 @@ class StochasticSearch:
         self.REC_POPS, self.AFF_POPS = REC_POPS, AFF_POPS
         
         self.desired_Vm_key = desired_Vm_key
+        self.idesired_Vm_key = np.argwhere(np.array(REC_POPS)==desired_Vm_key)[0][0]
 
         self.BOUNDS = BOUNDS
         
@@ -166,20 +167,13 @@ class StochasticSearch:
         print('----------- result for scan %i saved as "%s"' % (i, fn))
 
         
-    def compute_Vm(self, X):
-        Vm = self.mf.convert_to_mean_Vm_trace(X, self.desired_Vm_key)
-        return 1e3*Vm # in mV
-    
-        
-    def compute_Vm_residual(self, X):
-        Vm = self.compute_Vm(X)
+    def compute_Vm_residual(self, Vm):
         cond = (Vm>-100) & (Vm<=-30)
         residual = np.sum((Vm-self.desired_Vm)**2)/np.sum((self.desired_Vm)**2)
         if np.isfinite(residual):
             return residual
         else:
             return 1e12
-
 
     def flatten_Matrix(self, Matrix):
         return Matrix.flatten()
@@ -189,8 +183,8 @@ class StochasticSearch:
     
     def run_single_sim(self, flattened_Matrix):
         try:
-            X = self.mf.run_single_connectivity_sim(self.reshape_Matrix(flattened_Matrix))
-            res = self.compute_Vm_residual(X)
+            X, Vm = self.mf.run_single_connectivity_sim(self.reshape_Matrix(flattened_Matrix))
+            res = self.compute_Vm_residual(1e3*Vm[self.idesired_Vm_key,:])
             return res
         except RuntimeWarning:
             return 1e3
@@ -211,8 +205,7 @@ class StochasticSearch:
                                  verbose=False)
         print('---------- Parameter Search took %.1f seconds ' % (time.time()-start_time))
         
-        X = self.mf.run_single_connectivity_sim(self.reshape_Matrix(res.x))
-        Vm = self.compute_Vm(X)
+        X, Vm = self.mf.run_single_connectivity_sim(self.reshape_Matrix(res.x))
         result = {'Ntot':n, 'x':res.x, 'residual':res.fun, 'x0':x0, 'X':X, 'Vm':Vm}
                 
         self.save_config(result, i)
@@ -225,7 +218,8 @@ class StochasticSearch:
         try:
             while True:
                 print('\n---------- running scan %i [...]' % i)
-                print('---------- (approx. duration:',n*0.27/100.,'hours)')
+                print('--- EXPECTED ENDTIME:', time.strftime('%Y-%m-%d %H:%M:%S',\
+                                                             time.localtime(time.time()+10*n)))
                 self.run_simulation_set(i, n=n)
                 i+=1
         except KeyboardInterrupt:
@@ -299,14 +293,43 @@ if __name__=='__main__':
                 verbose=False)
             
     else:
-        print("""
-        use as :
-        python iterative_random_search.py -r bt
-        """)
-        search = StochasticSearch(Model, REC_POPS, AFF_POPS, run=True)
-        search.run_single_sim(search.mf.ecMatrix)
+        # calibration protocol, we insure that the MF is accurately describing the NTWK
+        from model import Model, REC_POPS, AFF_POPS
         
-    # search.run_simulation_set_batch()
-    # search.save_config()
-    # save_config(CONFIGS, RESIDUAL)
-    
+        search = StochasticSearch(Model, REC_POPS, AFF_POPS, run=True)
+
+        # a few random configs:
+        RESIDUALS = []
+        for i in range(10):
+            X, Vm = search.mf.run_single_connectivity_sim(search.reshape_Matrix(search.sort_random_config(i)))
+            RESIDUALS.append(search.compute_Vm_residual(1e3*Vm[search.idesired_Vm_key,:]))
+            print('Residual:', RESIDUALS[-1])
+        i0 = np.argmin(np.array(RESIDUALS))
+
+        flattened_Matrix = search.sort_random_config(i0)
+        Matrix = search.reshape_Matrix(flattened_Matrix)
+        
+        X, Vm = search.mf.run_single_connectivity_sim(Matrix)
+        
+        from ntwk_sim import run_sim, ge, COLORS
+        # we need to translate the synapse matrix into a connectivity one
+        search.translate_SynapseMatrix_into_connectivity_proba(Matrix, Model, REC_POPS, AFF_POPS)
+        run_sim(Model, REC_POPS, AFF_POPS, filename='data/test/stochastic-calibration.h5')
+        
+        import neural_network_dynamics.main as ntwk
+        
+        data = ntwk.load_dict_from_hdf5('data/test/stochastic-calibration.h5')
+        fig, AX = ntwk.activity_plots(data,
+                                      COLORS=COLORS,
+                                      smooth_population_activity=10,
+                                      pop_act_log_scale=True)
+
+        AX[2].plot(1e3*search.mf.t, search.desired_Vm, 'k--')
+        
+        mf2 = ntwk.FastMeanField(Model, REC_POPS, AFF_POPS, tstop=6.)
+        for i, label in enumerate(REC_POPS):
+            AX[-1].plot(1e3*search.mf.t, 1e-2+X[i,:], lw=1, color='k', alpha=.5)
+            AX[i+2].plot(1e3*search.mf.t, 1e3*Vm[i,:], 'k-')
+            AX[i+2].set_ylim([-72,-45])
+
+        ge.show()

@@ -31,9 +31,9 @@ Model = {
     # synaptic reversal potentials
     'Ee':0., 'Ei': -80.,
     # afferent stimulation
-    'F_AffExc':10., 'F_NoiseExc':1.,
+    'F_AffExc':10., 'F_NoiseExc':3.,
     # simulation parameters
-    'dt':0.1, 'tstop': 100., 'SEED':3, # low by default, see later
+    'dt':0.1, 'tstop': 6000., 'SEED':3, # low by default, see later
 }
 
 for pop in REC_POPS:
@@ -92,30 +92,29 @@ for aff in REC_POPS+AFF_POPS:
 # Model['p_NoiseExc_dsInh'] = 0.02
 # Model['p_NoiseExc_oscillExc'] = 0.2
 
-Model['p_pyrExc_pyrExc'] = 0.0114
-Model['p_pyrExc_oscillExc'] = 0.1345
-Model['p_pyrExc_recInh'] = 0.0491
-Model['p_pyrExc_dsInh'] = 0.0932
-Model['p_oscillExc_pyrExc'] = 0.2598
-Model['p_oscillExc_oscillExc'] = 0.1051
-Model['p_oscillExc_recInh'] = 0.3508
-Model['p_oscillExc_dsInh'] = 0.0921
-Model['p_recInh_pyrExc'] = 0.0140
-Model['p_recInh_oscillExc'] = 0.1178
-Model['p_recInh_recInh'] = 0.0094
-Model['p_recInh_dsInh'] = 0.0816
-Model['p_dsInh_pyrExc'] = 0.0368
-Model['p_dsInh_oscillExc'] = 0.0250
-Model['p_dsInh_recInh'] = 0.0177
-Model['p_dsInh_dsInh'] = 0.0215
-Model['p_AffExc_pyrExc'] = 0.0901
-Model['p_AffExc_oscillExc'] = 0.3347
-Model['p_AffExc_recInh'] = 0.3495
-Model['p_AffExc_dsInh'] = 0.2188
-Model['p_NoiseExc_pyrExc'] = 0.0627
-Model['p_NoiseExc_oscillExc'] = 0.1596
-Model['p_NoiseExc_recInh'] = 0.0372
-Model['p_NoiseExc_dsInh'] = 0.1744
+Model['p_pyrExc_oscillExc'] = 0.062
+Model['p_pyrExc_recInh'] = 0.044
+Model['p_pyrExc_dsInh'] = 0.012
+Model['p_oscillExc_pyrExc'] = 0.302
+Model['p_oscillExc_oscillExc'] = 0.066
+Model['p_oscillExc_recInh'] = 0.175
+Model['p_oscillExc_dsInh'] = 0.423
+Model['p_recInh_pyrExc'] = 0.084
+Model['p_recInh_oscillExc'] = 0.096
+Model['p_recInh_recInh'] = 0.061
+Model['p_recInh_dsInh'] = 0.067
+Model['p_dsInh_pyrExc'] = 0.030
+Model['p_dsInh_oscillExc'] = 0.051
+Model['p_dsInh_recInh'] = 0.045
+Model['p_dsInh_dsInh'] = 0.039
+Model['p_AffExc_pyrExc'] = 0.163
+Model['p_AffExc_oscillExc'] = 0.058
+Model['p_AffExc_recInh'] = 0.149
+Model['p_AffExc_dsInh'] = 0.212
+Model['p_NoiseExc_pyrExc'] = 0.052
+Model['p_NoiseExc_oscillExc'] = 0.082
+Model['p_NoiseExc_recInh'] = 0.149
+Model['p_NoiseExc_dsInh'] = 0.114
 
 if __name__=='__main__':
 
