@@ -23,8 +23,6 @@ for i, j in itertools.product(range(len(REC_POPS)+len(AFF_POPS)), range(len(REC_
     GRID0[i,j,:] = np.array(INITIAL_LIMS[i])
 
 
-
-                
 class InterativeSearch:
     """
     relies on a system of subfolders in data/
