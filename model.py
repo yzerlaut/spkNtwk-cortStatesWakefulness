@@ -68,29 +68,54 @@ for aff in REC_POPS+AFF_POPS:
 # -------------------------------
 # --- connectivity parameters ---
 # -------------------------------
-# ==> pyrExc
-Model['p_pyrExc_pyrExc'] = 0.01
-Model['p_pyrExc_oscillExc'] = 0.01
-Model['p_pyrExc_recInh'] = 0.02
-# ==> oscillExc
-Model['p_oscillExc_oscillExc'] = 0.01
-Model['p_oscillExc_pyrExc'] = 0.05
-# Model['p_oscillExc_recInh'] = 0.02
-# ==> recInh
-Model['p_recInh_recInh'] = 0.05
-Model['p_recInh_pyrExc'] = 0.05
-Model['p_recInh_oscillExc'] = 0.1
-# ==> dsInh
-Model['p_dsInh_recInh'] = 0.1
-# ==> AffExc
-Model['p_AffExc_dsInh'] = 0.2
-Model['p_AffExc_recInh'] = 0.2
-Model['p_AffExc_pyrExc'] = 0.05
-# ==> NoiseExc
-Model['p_NoiseExc_recInh'] = 0.1
-Model['p_NoiseExc_pyrExc'] = 0.02
-Model['p_NoiseExc_dsInh'] = 0.02
-Model['p_NoiseExc_oscillExc'] = 0.2
+# # ==> pyrExc
+# Model['p_pyrExc_pyrExc'] = 0.01
+# Model['p_pyrExc_oscillExc'] = 0.01
+# Model['p_pyrExc_recInh'] = 0.02
+# # ==> oscillExc
+# Model['p_oscillExc_oscillExc'] = 0.01
+# Model['p_oscillExc_pyrExc'] = 0.05
+# # Model['p_oscillExc_recInh'] = 0.02
+# # ==> recInh
+# Model['p_recInh_recInh'] = 0.05
+# Model['p_recInh_pyrExc'] = 0.05
+# Model['p_recInh_oscillExc'] = 0.1
+# # ==> dsInh
+# Model['p_dsInh_recInh'] = 0.1
+# # ==> AffExc
+# Model['p_AffExc_dsInh'] = 0.2
+# Model['p_AffExc_recInh'] = 0.2
+# Model['p_AffExc_pyrExc'] = 0.05
+# # ==> NoiseExc
+# Model['p_NoiseExc_recInh'] = 0.1
+# Model['p_NoiseExc_pyrExc'] = 0.02
+# Model['p_NoiseExc_dsInh'] = 0.02
+# Model['p_NoiseExc_oscillExc'] = 0.2
+
+Model['p_pyrExc_pyrExc'] = 0.0114
+Model['p_pyrExc_oscillExc'] = 0.1345
+Model['p_pyrExc_recInh'] = 0.0491
+Model['p_pyrExc_dsInh'] = 0.0932
+Model['p_oscillExc_pyrExc'] = 0.2598
+Model['p_oscillExc_oscillExc'] = 0.1051
+Model['p_oscillExc_recInh'] = 0.3508
+Model['p_oscillExc_dsInh'] = 0.0921
+Model['p_recInh_pyrExc'] = 0.0140
+Model['p_recInh_oscillExc'] = 0.1178
+Model['p_recInh_recInh'] = 0.0094
+Model['p_recInh_dsInh'] = 0.0816
+Model['p_dsInh_pyrExc'] = 0.0368
+Model['p_dsInh_oscillExc'] = 0.0250
+Model['p_dsInh_recInh'] = 0.0177
+Model['p_dsInh_dsInh'] = 0.0215
+Model['p_AffExc_pyrExc'] = 0.0901
+Model['p_AffExc_oscillExc'] = 0.3347
+Model['p_AffExc_recInh'] = 0.3495
+Model['p_AffExc_dsInh'] = 0.2188
+Model['p_NoiseExc_pyrExc'] = 0.0627
+Model['p_NoiseExc_oscillExc'] = 0.1596
+Model['p_NoiseExc_recInh'] = 0.0372
+Model['p_NoiseExc_dsInh'] = 0.1744
 
 if __name__=='__main__':
 

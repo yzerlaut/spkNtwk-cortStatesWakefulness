@@ -2,12 +2,14 @@ import itertools, os, datetime, multiprocessing, time
 import numpy as np
 
 from analyz.workflow.saving import filename_with_datetime
-from analyz.workflow.shell import printProgressBar
+from analyz.optimization.dual_annealing import run_dual_annealing
 from analyz.IO.npz import save_dict, load_dict
 import neural_network_dynamics.main as ntwk
 
 from model import REC_POPS, AFF_POPS, Model
 from Umodel import Umodel
+
+import warnings
 
 residual_inclusion_threshold = 1000 # above this value of residual, we do not store the config
 INITIAL_LIMS = [[1,1500],
@@ -16,16 +18,15 @@ INITIAL_LIMS = [[1,1500],
                 [1,40],
                 [1,40],
                 [1,40]]
-                
-
-GRID0 = np.zeros((len(REC_POPS)+len(AFF_POPS), len(REC_POPS),2))
-for i, j in itertools.product(range(len(REC_POPS)+len(AFF_POPS)), range(len(REC_POPS))):
-    GRID0[i,j,:] = np.array(INITIAL_LIMS[i])
 
 
+BOUNDS = []
+for i, spop in enumerate(REC_POPS+AFF_POPS):
+    for j, tpop in enumerate(REC_POPS):
+        BOUNDS.append(INITIAL_LIMS[i])
 
-                
-class InterativeSearch:
+
+class StochasticSearch:
     """
     relies on a system of subfolders in data/
 
@@ -34,29 +35,25 @@ class InterativeSearch:
     ...
 
     """
-    def __init__(self, Model,
-                 previous_batch_folder='batch_test',
-                 new_batch_folder='batch_test',
+    def __init__(self, Model, REC_POPS, AFF_POPS,
+                 DA_folder='DA_test',
                  run=False,
                  desired_Vm_key='pyrExc'):
 
         self.Model = Model
-        self.desired_Vm_key = desired_Vm_key
+        self.REC_POPS, self.AFF_POPS = REC_POPS, AFF_POPS
         
-        self.previous_batch_folder = os.path.join('data', 'Mscan', previous_batch_folder)
-        self.new_batch_folder = os.path.join('data', 'Mscan', new_batch_folder)
+        self.desired_Vm_key = desired_Vm_key
 
-        if not os.path.exists(self.new_batch_folder):
-            os.makedirs(self.new_batch_folder)
+        self.BOUNDS = BOUNDS
+        
+        self.DA_folder = os.path.join('data', DA_folder)
+
+        if not os.path.exists(self.DA_folder):
+            os.makedirs(self.DA_folder)
 
         self.CONFIGS, self.RESIDUAL = None, None
         self.result, self.new_result = None, None
-
-        if previous_batch_folder!='batch_test' and run:
-            self.load_results()
-            self.GRID = self.compute_new_grid()
-        else:
-            self.GRID = GRID0
 
         self.Umodel = Umodel() # initialize U-model
 
@@ -66,23 +63,16 @@ class InterativeSearch:
             self.X0 = [0*self.mf.t for i in range(len(REC_POPS))]
             self.mf.build_TF_func(100, with_Vm_functions=True, sampling='log')
             # initialize desired Vm trace from U-model
-            self.desired_Vm = self.Umodel.predict_Vm(self.mf.t, self.mf.FAFF[0,:])+Model['%s_El' % self.desired_Vm_key] # in mV
+            self.desired_Vm = self.Umodel.predict_Vm(self.mf.t, self.mf.FAFF[0,:])+\
+                Model['%s_El' % self.desired_Vm_key] # in mV
         else:
-            self.prev_files = [f for f in os.listdir(self.previous_batch_folder) if f.endswith('.npy') ]
+            self.prev_files = [f for f in os.listdir(self.DA_folder) if f.endswith('.npy') ]
 
         
     ##########################################################################
     #################    ANALYSIS    ##########################################
     ##########################################################################
     
-    def analyze_previous_batch(self):
-        
-        # filename_with_datetime(filename, folder='./', extension='')
-        # PREV_CONFIGS, PREV_RESIDUALS = np.load()
-        
-        pass
-
-        
     def show_residuals_over_trials(self, graph=None, ax=None, threshold=100):
 
         if graph is None:
@@ -155,42 +145,25 @@ class InterativeSearch:
     #################    SIMULATION    #######################################
     ##########################################################################
 
-    def compute_new_grid(self,
-                         Nbest_criteria=100,
-                         variance_factor=1.5):
-
-        print('computing new grid from the data of %s [...]' % self.previous_batch_folder)
-        GRID1 = np.zeros((len(REC_POPS)+len(AFF_POPS), len(REC_POPS), 2))
-
-        CONFIGS = np.array(self.get_x_best_configs(Nbest_criteria))
-        for i, spop in enumerate(REC_POPS+AFF_POPS):
-            for j, tpop in enumerate(REC_POPS):
-                mean, std = CONFIGS[:,i,j].mean(), CONFIGS[:,i,j].std()
-                GRID1[i,j,:] = [np.max([1,mean-variance_factor*std]),
-                                np.min([GRID0[i,j,1],mean+variance_factor*std])]
-
-        return GRID1
-    
-    
-    def sort_random_configs(self,
-                            seed=1, n=10000):
+    def sort_random_config(self, seed=1):
 
         if seed is not None:
             np.random.seed(seed)
-            
-        CONFIGS = np.zeros((n,len(REC_POPS)+len(AFF_POPS), len(REC_POPS)))
-        for i, j in itertools.product(range(len(REC_POPS)+len(AFF_POPS)), range(len(REC_POPS))):
-            CONFIGS[:,i,j] = np.random.uniform(self.GRID[i,j,0], self.GRID[i,j,1], size=n)
 
-        return CONFIGS
+        x = np.zeros(len(self.BOUNDS))
+        for i, bounds in enumerate(self.BOUNDS):
+            x[i] = np.random.uniform(bounds[0], bounds[1])
+
+        return x
 
     
     def save_config(self, result, i):
 
-        save_dict(filename_with_datetime('', folder=self.new_batch_folder,
-                                         with_microseconds=True,
-                                         extension='npz'), result)
-        print('--------------- result for scan %i: %i/%i' % (i, len(result['residuals']), result['Ntot']))
+        fn = filename_with_datetime('', folder=self.DA_folder,
+                                    with_microseconds=True,
+                                    extension='npz')
+        save_dict(fn, result)
+        print('----------- result for scan %i saved as "%s"' % (i, fn))
 
         
     def compute_Vm(self, X):
@@ -201,70 +174,62 @@ class InterativeSearch:
     def compute_Vm_residual(self, X):
         Vm = self.compute_Vm(X)
         cond = (Vm>-100) & (Vm<=-30)
-        residual = np.sqrt(np.sum((Vm-self.desired_Vm)**2))
+        residual = np.sum((Vm-self.desired_Vm)**2)/np.sum((self.desired_Vm)**2)
         if np.isfinite(residual):
-            return residual/self.mf.t[-1]
+            return residual
         else:
             return 1e12
 
-        
-    def run_single_sim(self, Matrix):
-        X = self.mf.run_single_connectivity_sim(Matrix)
-        return self.compute_Vm_residual(X)
 
+    def flatten_Matrix(self, Matrix):
+        return Matrix.flatten()
+
+    def reshape_Matrix(self, flattened_Matrix):
+        return flattened_Matrix.reshape(len(self.REC_POPS)+len(self.AFF_POPS), len(self.REC_POPS))
     
-    def run_simulation_set(self, seed, n=10000):
+    def run_single_sim(self, flattened_Matrix):
+        try:
+            X = self.mf.run_single_connectivity_sim(self.reshape_Matrix(flattened_Matrix))
+            res = self.compute_Vm_residual(X)
+            return res
+        except RuntimeWarning:
+            return 1e3
 
-        result = {'Ntot':n, 'configs':[], 'residuals':[]}
+    def run_simulation_set(self, i, n=100):
+
+        seed = datetime.datetime.now().microsecond
         
-        CONFIGS = self.sort_random_configs(seed+datetime.datetime.now().microsecond, n=n)
-
-        printProgressBar(0, n, prefix = 'Progress:', suffix = 'Complete', length = 50)
-        for i in range(n):
-            res = self.run_single_sim(CONFIGS[i,:,:])
-            if res<residual_inclusion_threshold:
-                result['configs'].append(CONFIGS[i,:,:])
-                result['residuals'].append(res)
-            if i%10==0:
-                printProgressBar(i+1, n, prefix = 'Progress:', suffix = 'Complete', length = 50)
+        x0 = self.sort_random_config(seed)
+        
+        start_time=time.time()
+        res = run_dual_annealing(self.run_single_sim,
+                                 x0 = x0,
+                                 bounds=self.BOUNDS,
+                                 seed=seed,
+                                 maxiter=n, maxfun=100*n,
+                                 no_local_search=True,
+                                 verbose=False)
+        print('---------- Parameter Search took %.1f seconds ' % (time.time()-start_time))
+        
+        X = self.mf.run_single_connectivity_sim(self.reshape_Matrix(res.x))
+        Vm = self.compute_Vm(X)
+        result = {'Ntot':n, 'x':res.x, 'residual':res.fun, 'x0':x0, 'X':X, 'Vm':Vm}
                 
         self.save_config(result, i)
         
-    def launch_search(self):
+    def launch_search(self, n=3):
+        
+        warnings.filterwarnings("error")
+        
         i=1
         try:
             while True:
                 print('\n---------- running scan %i [...]' % i)
-                self.run_simulation_set(i, n=1000)
+                print('---------- (approx. duration:',n*0.27/100.,'hours)')
+                self.run_simulation_set(i, n=n)
                 i+=1
         except KeyboardInterrupt:
             print('\nScan stopped !')
-
-
-    def load_results(self, on_prev=True):
-
-        result = {'Ntot':0, 'configs':[], 'residuals':[]}
-        if on_prev:
-            folder = self.previous_batch_folder
-        else:
-            folder = self.new_batch_folder
-
-        for i, f in enumerate(os.listdir(folder)):
-            data = load_dict(os.path.join(folder, f))
-            result['Ntot'] += data['Ntot']
-            if type(data['residuals']) is float:
-                result['configs'] = result['configs'] +list([data['configs']])
-                result['residuals'] = np.concatenate([result['residuals'],[data['residuals']]])
-            else:
-                result['configs'] = result['configs'] +list(data['configs'])
-                result['residuals'] = np.concatenate([result['residuals'],data['residuals']])
-
-        if on_prev:
-            self.result = result
-        else:
-            self.new_result = result
-            
-
         
 
 if __name__=='__main__':
@@ -272,32 +237,37 @@ if __name__=='__main__':
     from model import Model
     import sys
     
-    if len(sys.argv)==3:
+    if len(sys.argv)==2:
+        
+        _, protocol = sys.argv
+        folder, N = 'test', 1
+        
+    elif len(sys.argv)==3:
         
         _, protocol, folder = sys.argv
-        folder_prev, N = 'batch_test', 1
+        N = 1
         
     elif len(sys.argv)==4:
 
-        _, protocol, folder_prev, folder = sys.argv
-        N=1
+        _, protocol, folder, N = sys.argv
+        
+    else:
+        protocol, folder, N  = '', '', 1
 
-    elif len(sys.argv)==5:
-
-        _, protocol, folder_prev, folder, N = sys.argv
         
     if protocol=='-r': # run
-        search = InterativeSearch(Model,
-                                  previous_batch_folder=folder_prev,
-                                  new_batch_folder=folder,
-                                  run=True)
-        search.launch_search()
 
+        search = StochasticSearch(Model,REC_POPS,AFF_POPS,
+                                  DA_folder=folder,
+                                  run=True)
+        search.launch_search(int(N))
+
+        
     elif protocol=='-a': # analysis
+        
         from datavyz import ges
-        search = InterativeSearch(Model,
-                                  previous_batch_folder=folder_prev,
-                                  new_batch_folder=folder,
+        search = StochasticSearch(Model,REC_POPS,AFF_POPS,
+                                  DA_folder=folder,
                                   run=False)
         if folder_prev!='batch_test':
             search.load_results(on_prev=True)
@@ -308,39 +278,32 @@ if __name__=='__main__':
         fig, ax = search.show_residuals_over_trials(ges)
         ges.show()
 
+        
     elif protocol=='-t': # test
 
         from model import Model, REC_POPS, AFF_POPS
         from ntwk_sim import run_sim
-        search = InterativeSearch(Model,
-                                  previous_batch_folder=folder,
-                                  run=True)
-        search.load_results()
+        
+        search = StochasticSearch(Model,REC_POPS,AFF_POPS,
+                                  DA_folder=folder,
+                                  run=False)
 
-        for i, M in enumerate(search.get_x_best_configs(int(N))):
-            print("""
+        fn = sorted(os.listdir(os.path.join('data', folder)))[::-1][int(N)]
+        print('loading %s [...]' % fn)
+        data = load_dict(os.path.join('data',folder,fn))
 
-
-            --------------------------------------------------------------------
-            """)
-            X = search.mf.run_single_connectivity_sim(M)
-            mf_data = {'X':X, 'Vm':search.compute_Vm(X), 't':1e3*search.mf.t,
-                       'residual':search.compute_Vm_residual(X),
-                       'desired_Vm':search.desired_Vm}
-            save_dict(os.path.join('data',folder,'mf_%i.npz' % (i+1)), mf_data)
-            search.translate_SynapseMatrix_into_connectivity_proba(M, Model, REC_POPS, AFF_POPS)
-            run_sim(Model, filename=os.path.join('data',folder,'ntwk_%i.h5' % (i+1)), verbose=False)
+        M = search.reshape_Matrix(data['x'])
+        search.translate_SynapseMatrix_into_connectivity_proba(M, Model, REC_POPS, AFF_POPS)
+        run_sim(Model,
+                filename=os.path.join('data',folder,fn.replace('.npz','.h5')),
+                verbose=False)
             
     else:
         print("""
-
         use as :
-
         python iterative_random_search.py -r bt
-
-
         """)
-        search = InterativeSearch(Model, run=True)
+        search = StochasticSearch(Model, REC_POPS, AFF_POPS, run=True)
         search.run_single_sim(search.mf.ecMatrix)
         
     # search.run_simulation_set_batch()

@@ -14,7 +14,7 @@ from model import Model, REC_POPS, AFF_POPS
 from Umodel import Umodel
 
 
-def run_sim(Model, filename='draft_data.h5'):
+def run_sim(Model, filename='data/draft_data.h5'):
 
     ######################
     ## ----- Run  ----- ##
@@ -82,7 +82,7 @@ if sys.argv[-1]=='plot':
     ######################
 
     ## load file
-    data = ntwk.load_dict_from_hdf5('draft_data.h5')
+    data = ntwk.load_dict_from_hdf5('data/draft_data.h5')
     
     # ## plot
     fig, _ = ntwk.activity_plots(data,
@@ -101,7 +101,7 @@ elif sys.argv[-1]=='mf':
     X = mf.run_single_connectivity_sim(mf.ecMatrix, verbose=True)
 
     
-    data = ntwk.load_dict_from_hdf5('draft_data.h5')
+    data = ntwk.load_dict_from_hdf5('data/draft_data.h5')
     fig, AX = ntwk.activity_plots(data,
                                   COLORS=COLORS,
                                   smooth_population_activity=10,
@@ -124,7 +124,7 @@ elif sys.argv[-1]=='old-mf':
     ## -- Mean-Field ----- ##
     #########################
 
-    data = ntwk.load_dict_from_hdf5('draft_data.h5')
+    data = ntwk.load_dict_from_hdf5('data/draft_data.h5')
     tstop, dt = 1e-3*data['tstop'], 1e-2
     subsampling = int(dt/(1e-3*data['dt']))
     # subsampled t-axis
@@ -172,7 +172,5 @@ elif sys.argv[-1]=='old-mf':
     
 else:
 
-    run_sim(Model, filename='draft_data.h5')
-    print('Results of the simulation are stored as:', 'draft_data.h5')
-    print('--> Run \"python draft.py plot\" to plot the results')
+    run_sim(Model, filename='data/draft_data.h5')
 

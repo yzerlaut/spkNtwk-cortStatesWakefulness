@@ -8,13 +8,13 @@ from analyz.processing.signanalysis import gaussian_smoothing as smooth
 from analyz.IO.npz import load_dict
 from datavyz.main import graph_env
 ge = graph_env()
-COLORS=[ge.g, ge.b, ge.r, ge.purple]
+COLORS=[ge.g, ge.b, ge.r, ge.purple, 'k', 'dimgrey']
 
 from model import Model, REC_POPS, AFF_POPS
 from Umodel import Umodel
 
 
-def run_sim(Model, filename='draft_data.h5'):
+def run_sim(Model, filename='draft_data.h5', verbose=True):
 
     ######################
     ## ----- Run  ----- ##
@@ -22,20 +22,21 @@ def run_sim(Model, filename='draft_data.h5'):
     
     Model['tstop'], Model['dt'] = 6000, 0.1
 
+    print('initializing simulation for %s [...]' % filename)
     t_array = ntwk.arange(int(Model['tstop']/Model['dt']))*Model['dt']
     faff =  ntwk.stim_waveforms.IncreasingSteps(t_array, 'AffExc', Model, translate_to_SI=False)
-    fnoise = 3.+0*t_array
+    fnoise = Model['F_NoiseExc']+0*t_array
 
     #######################################
     ########### BUILD POPS ################
     #######################################
-    print(Model)
+
     NTWK = ntwk.build_populations(Model, REC_POPS,
                                   AFFERENT_POPULATIONS=AFF_POPS,
                                   with_pop_act=True,
                                   with_raster=True,
                                   with_Vm=4,
-                                  verbose=True)
+                                  verbose=verbose)
 
     ntwk.build_up_recurrent_connections(NTWK, SEED=5, verbose=True)
 
@@ -47,13 +48,13 @@ def run_sim(Model, filename='draft_data.h5'):
     for i, tpop in enumerate(REC_POPS): # both on excitation and inhibition
         ntwk.construct_feedforward_input(NTWK, tpop, 'AffExc',
                                          t_array, faff,
-                                         verbose=True,
+                                         verbose=verbose,
                                          SEED=4)
     # # noise excitation
     for i, tpop in enumerate(REC_POPS): # both on excitation and inhibition
         ntwk.construct_feedforward_input(NTWK, tpop, 'NoiseExc',
                                          t_array, fnoise,
-                                         verbose=True,
+                                         verbose=verbose,
                                          SEED=5)
 
     ################################################################
@@ -64,14 +65,14 @@ def run_sim(Model, filename='draft_data.h5'):
     #####################
     ## ----- Run ----- ##
     #####################
-    network_sim = ntwk.collect_and_run(NTWK, verbose=True)
+    print('running simulation for %s [...]' % filename)
+    network_sim = ntwk.collect_and_run(NTWK, verbose=verbose)
 
     #####################
     ## ----- Save ----- ##
     #####################
     ntwk.write_as_hdf5(NTWK, filename=filename)
-    print('Results of the simulation are stored as:', filename)
-    print('--> Run \"python draft.py plot\" to plot the results')
+    print('[ok] Results of the simulation are stored as:', filename)
 
     
 def plot_sim(filename):
@@ -81,32 +82,77 @@ def plot_sim(filename):
 
     ## load file
     data = ntwk.load_dict_from_hdf5(filename)
-    
     # ## plot
-    fig, _ = ntwk.activity_plots(data,
-                                 smooth_population_activity=10)
+    fig, AX = ntwk.activity_plots(data,
+                                  smooth_population_activity=10,
+                                  COLORS=COLORS)
+    
+    try:
+        mf_data = load_dict(filename.replace('ntwk', 'mf').replace('.h5', '.npz'))
+        if 't' not in mf_data:
+            mf_data['t'] = np.linspace(0, data['tstop'], len(mf_data['Vm']))
+
+        for i, label in enumerate(REC_POPS):
+            AX[-1].plot(mf_data['t'], mf_data['X'][i,:], '--', lw=0.5, color=COLORS[i])
+        # then Vm vs U-model vs MF
+        # AX[2].plot(mf_data['t'], mf_data['desired_Vm'], 'k--', lw=2, label='U-model')
+        AX[2].plot(mf_data['t'], mf_data['Vm'], 'k-', lw=5, alpha=.3, label='mean-field')
+        AX[2].legend(frameon=False, loc='best')
+    except FileNotFoundError:
+        pass
+        
+    figM, _, _ = plot_matrix(data, REC_POPS, AFF_POPS)
     
     ntwk.show()
+    # ge.show()
+    
 
-    # um = Umodel()
-    # AX[2].plot(1e3*mf.t, um.predict_Vm(mf.t, mf.FAFF[0,:])+Model['pyrExc_El'], 'k--')
-    ge.show()
-    um = Umodel()
-    ge.plot(um.predict_Vm(1e-3*t_sim, data['Rate_AffExc_pyrExc']), fig_args={'figsize':(3,1)})
-            
-    ge.show()
+def plot_matrix(Model, REC_POPS, AFF_POPS):
+
+
+    pconnMatrix = np.zeros((len(REC_POPS)+len(AFF_POPS), len(REC_POPS)))
     
+    for i, source_pop in enumerate(REC_POPS+AFF_POPS):
+        for j, target_pop in enumerate(REC_POPS):
+            pconnMatrix[i,j] = Model['p_%s_%s' % (source_pop, target_pop)]
+            print('Model["p_%s_%s"] = %.4f' % (source_pop, target_pop, Model['p_%s_%s' % (source_pop, target_pop)]))
     
+    fig, ax, acb = ge.figure(figsize=(1.,1.),
+                             with_bar_legend=True)
+    
+    Lims = [np.round(100*pconnMatrix.min(),1)-.1,np.round(100*pconnMatrix.max(),1)+.1]
+    
+    ge.matrix(100*pconnMatrix.T, origin='upper', ax=ax, vmin=Lims[0], vmax=Lims[1])
+
+
+    n, m = len(REC_POPS)+len(AFF_POPS), len(REC_POPS)
+    for i, label in enumerate(REC_POPS+AFF_POPS):
+        ge.annotate(ax, label, (-0.2, .9-i/n),\
+            ha='right', va='center', color=COLORS[i])
     for i, label in enumerate(REC_POPS):
-        AX[-1].plot(1e3*mf.t, 1e-2+X[i,:], lw=4, color=COLORS[i], alpha=.5)
-        Vm = mf.convert_to_mean_Vm_trace(X, label, verbose=True)
-        AX[i+2].plot(1e3*mf.t, 1e3*Vm, 'k-')
-        AX[i+2].set_ylim([-72,-45])
-        
+        ge.annotate(ax, label, (i/m+.25, -0.1),\
+                    ha='right', va='top', color=COLORS[i], rotation=65)
+    
+    ge.build_bar_legend_continuous(acb, ge.viridis, bounds=[Lims[0], Lims[1]],
+                                   label='$p_{conn}$ (%)')
+    ge.set_plot(ax,
+                ['left', 'bottom'],
+                tck_outward=0,
+                xticks=.75*np.arange(0,4)+.75/2.,
+                xticks_labels=[],
+                xlim_enhancment=0, ylim_enhancment=0,
+                yticks=.83*np.arange(0,6)+.85/2.,
+                yticks_labels=[])
+
+    
+    return fig, ax, acb
+    
+    
 if __name__=='__main__':
 
-    try:
-        plot_sim(sys.argv[-1])
-    except BaseException:
-        pass
+    plot_sim(sys.argv[-1])
+    # try:
+    #     plot_sim(sys.argv[-1])
+    # except BaseException:
+    #     pass
     
