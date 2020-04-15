@@ -282,13 +282,16 @@ if __name__=='__main__':
                                   DA_folder=folder,
                                   run=False)
 
-        fn = sorted(os.listdir(os.path.join('data', folder)))[::-1][int(N)]
+        lf = [f for f in os.listdir(os.path.join('data', folder)) if f.endswith('.npz')]
+        fn = sorted(lf)[::-1][int(N)]
+
         print('loading %s [...]' % fn)
+
         data = load_dict(os.path.join('data',folder,fn))
 
         M = search.reshape_Matrix(data['x'])
         search.translate_SynapseMatrix_into_connectivity_proba(M, Model, REC_POPS, AFF_POPS)
-        run_sim(Model,
+        run_sim(Model,REC_POPS,AFF_POPS,
                 filename=os.path.join('data',folder,fn.replace('.npz','.h5')),
                 verbose=False)
             

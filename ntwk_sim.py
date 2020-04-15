@@ -39,7 +39,7 @@ def run_sim(Model, REC_POPS, AFF_POPS,
                                   with_Vm=4,
                                   verbose=verbose)
 
-    ntwk.build_up_recurrent_connections(NTWK, SEED=5, verbose=True)
+    ntwk.build_up_recurrent_connections(NTWK, SEED=5, verbose=verbose)
 
     #######################################
     ########### AFFERENT INPUTS ###########
@@ -80,11 +80,11 @@ def plot_sim(filename, ge):
     ######################
     ## ----- Plot ----- ##
     ######################
-
+    from model import REC_POPS, AFF_POPS
     ## load file
     data = ntwk.load_dict_from_hdf5(filename)
-    for key in Model:
-        print(key, '-->', data[key])
+    # for key in Model:
+    #     print(key, '-->', data[key])
     # ## plot
     fig, AX = ntwk.activity_plots(data,
                                   smooth_population_activity=10,
@@ -93,12 +93,12 @@ def plot_sim(filename, ge):
     try:
         mf_data = load_dict(filename.replace('ntwk', 'mf').replace('.h5', '.npz'))
         if 't' not in mf_data:
-            mf_data['t'] = np.linspace(0, data['tstop'], len(mf_data['Vm']))
+            mf_data['t'] = np.linspace(0, data['tstop'], mf_data['Vm'].shape[1])
         for i, label in enumerate(REC_POPS):
             AX[-1].plot(mf_data['t'], mf_data['X'][i,:], '--', lw=0.5, color=COLORS[i])
+            AX[2+i].plot(mf_data['t'], 1e3*mf_data['Vm'][i,:], 'k-', lw=1, label='mean-field')
         # then Vm vs U-model vs MF
-        AX[2].plot(mf_data['t'], mf_data['desired_Vm'], 'k--', lw=2, label='U-model')
-        AX[2].plot(mf_data['t'], mf_data['Vm'], 'k-', lw=5, alpha=.3, label='mean-field')
+        #AX[2].plot(mf_data['t'], mf_data['desired_Vm'], 'k--', lw=2, label='U-model')
         AX[2].legend(frameon=False, loc='best')
     except FileNotFoundError:
         pass
