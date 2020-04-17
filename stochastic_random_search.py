@@ -6,24 +6,26 @@ from analyz.optimization.dual_annealing import run_dual_annealing
 from analyz.IO.npz import save_dict, load_dict
 import neural_network_dynamics.main as ntwk
 
-from model import REC_POPS, AFF_POPS, Model
 from Umodel import Umodel
 
 import warnings
 
-residual_inclusion_threshold = 1000 # above this value of residual, we do not store the config
-INITIAL_LIMS = [[1,1500],
-                [1,80],
-                [1,320],
-                [1,40],
-                [1,40],
-                [1,40]]
+from iterative_random_search import translate_SynapseMatrix_into_connectivity_proba
+    
 
-
-BOUNDS = []
-for i, spop in enumerate(REC_POPS+AFF_POPS):
-    for j, tpop in enumerate(REC_POPS):
-        BOUNDS.append(INITIAL_LIMS[i])
+def build_initial_grid(REC_POPS,
+                       AFF_POPS,
+                       INITIAL_LIMS = [[1,1500],
+                                       [1,80],
+                                       [1,320],
+                                       [1,40],
+                                       [1,40],
+                                       [1,40]]):
+    BOUNDS = []
+    for i, spop in enumerate(REC_POPS+AFF_POPS):
+        for j, tpop in enumerate(REC_POPS):
+            BOUNDS.append(INITIAL_LIMS[i])
+    return BOUNDS
 
 
 class StochasticSearch:
@@ -36,110 +38,48 @@ class StochasticSearch:
 
     """
     def __init__(self, Model, REC_POPS, AFF_POPS,
-                 DA_folder='DA_test',
+                 folder='data/DA_test',
                  run=False,
+                 Ngrid_for_TF=100,
+                 BOUNDS = None,
+                 residual_inclusion_threshold=1000,# above this value, we do not store the config
                  desired_Vm_key='pyrExc'):
 
         self.Model = Model
         self.REC_POPS, self.AFF_POPS = REC_POPS, AFF_POPS
+        self.folder = folder
         
         self.desired_Vm_key = desired_Vm_key
         self.idesired_Vm_key = np.argwhere(np.array(REC_POPS)==desired_Vm_key)[0][0]
 
-        self.BOUNDS = BOUNDS
-        
-        self.DA_folder = os.path.join('data', DA_folder)
-
-        if not os.path.exists(self.DA_folder):
-            os.makedirs(self.DA_folder)
-
-        self.CONFIGS, self.RESIDUAL = None, None
-        self.result, self.new_result = None, None
-
-        self.Umodel = Umodel() # initialize U-model
-
+        if BOUNDS is None:
+            self.BOUNDS = build_initial_grid(REC_POPS,AFF_POPS)
+        else:
+            self.BOUNDS = BOUNDS
+            
         if run:
+
+            if not os.path.exists(folder):
+                os.makedirs(folder)
+
+            self.CONFIGS, self.RESIDUAL = None, None
+            self.result, self.new_result = None, None
+
+            self.Umodel = Umodel() # initialize U-model
+
             # initialize mean-field
             self.mf = ntwk.FastMeanField(self.Model, REC_POPS, AFF_POPS, tstop=6.)
             self.X0 = [0*self.mf.t for i in range(len(REC_POPS))]
-            self.mf.build_TF_func(100, with_Vm_functions=True, sampling='log')
+            self.mf.build_TF_func(Ngrid_for_TF, with_Vm_functions=True, sampling='log')
             # initialize desired Vm trace from U-model
             self.desired_Vm = self.Umodel.predict_Vm(self.mf.t, self.mf.FAFF[0,:])+\
                 Model['%s_El' % self.desired_Vm_key] # in mV
-        else:
-            self.prev_files = [f for f in os.listdir(self.DA_folder) if f.endswith('.npy') ]
-
+            
         
     ##########################################################################
     #################    ANALYSIS    ##########################################
     ##########################################################################
     
-    def show_residuals_over_trials(self, graph=None, ax=None, threshold=100):
-
-        if graph is None:
-            from datavyz import ges as graph
-        if ax is None:
-            # fig, ax = graph.figure(axes=(1,3), wspace=.2,
-            #                        left=.7, bottom=.7, figsize=(.7,1.))
-            fig, ax = graph.figure(left=.7, bottom=.7, figsize=(.7,1.))
-        else:
-            fig = None
-
-        result = self.result
-        if self.new_result is not None:
-            RESULTS = [self.result, self.new_result]
-        else:
-            RESULTS = [self.result]
-        for res in RESULTS:
-            indices = np.argsort(res['residuals'])
-            x = res['residuals'][indices]
-            full_x = np.concatenate([np.arange(1, len(indices)+1)[x<=threshold],
-                                     [len(indices)+1, res['Ntot']]])
-            full_y = np.concatenate([x[x<=threshold], [threshold, threshold]])
-            ax.plot(np.log10(full_x), np.log10(full_y), clip_on=False)
-
-        graph.set_plot(ax,
-                       # yticks=np.log10([1, 2, 5, 10, 20]),
-                       # yticks_labels=['1', '2', '5', '10', '>20'],
-                       # yminor_ticks=np.log10([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 20]),
-                       # ylim=[1, np.log10(threshold)],
-                       xminor_ticks=np.log10(np.concatenate([[i*10**k for i in range(1,10)]\
-                                                             for k in range(0,7)])),
-                       xlim=[np.log10(result['Ntot']), -1.],
-                       xticks=np.arange(7),
-                       xticks_labels=['1','','','$10^3$','','','$10^6$'],
-                       xlabel='config #',
-                       ylabel=r'fit $\chi^2$ (norm.)       ', ylabelpad=-7)
-        graph.annotate(ax, '4 pop. model', (.4, 1.2), ha='center')
-
-        return fig, ax
-
-    
-    def get_x_best_configs(self, x):
-        
-        indices = np.argsort(self.result['residuals'])[::-1][:int(x)]
-        return [self.result['configs'][i] for i in indices]
-
-    
-    def translate_SynapseMatrix_into_connectivity_proba(self, Matrix, Model, REC_POPS, AFF_POPS):
-
-        for i, source_pop in enumerate(REC_POPS+AFF_POPS):
-            for j, target_pop in enumerate(REC_POPS):
-                Model['p_%s_%s' % (source_pop, target_pop)] = Matrix[i,j]/Model['N_%s' % source_pop]
-                # print('p_%s_%s = %.1f%%' % (source_pop, target_pop,\
-                #                             100*Matrix[i,j]/Model['N_%s' % source_pop]))
-
-
-    def reshape_SynapseMatrix_into_ConnecMatrix(self, Matrix, Model, REC_POPS, AFF_POPS):
-        """
-        uses the population number from "Model" to translate into connectivity
-        """
-        pconnMatrix = 0*Matrix
-        for i, pop in enumerate(REC_POPS+AFF_POPS):
-            N = Model['N_%s' % pop]
-            pconnMatrix[i,:] = Matrix[i,:]/N
-        return pconnMatrix    
-
 
     
     ##########################################################################
@@ -160,7 +100,7 @@ class StochasticSearch:
     
     def save_config(self, result, i):
 
-        fn = filename_with_datetime('', folder=self.DA_folder,
+        fn = filename_with_datetime('', folder=self.folder,
                                     with_microseconds=True,
                                     extension='npz')
         save_dict(fn, result)
@@ -175,11 +115,14 @@ class StochasticSearch:
         else:
             return 1e12
 
+        
     def flatten_Matrix(self, Matrix):
         return Matrix.flatten()
 
+    
     def reshape_Matrix(self, flattened_Matrix):
         return flattened_Matrix.reshape(len(self.REC_POPS)+len(self.AFF_POPS), len(self.REC_POPS))
+
     
     def run_single_sim(self, flattened_Matrix):
         try:
@@ -189,6 +132,7 @@ class StochasticSearch:
         except RuntimeWarning:
             return 1e3
 
+        
     def run_simulation_set(self, i, n=100):
 
         seed = datetime.datetime.now().microsecond
@@ -206,7 +150,9 @@ class StochasticSearch:
         print('---------- Parameter Search took %.1f seconds ' % (time.time()-start_time))
         
         X, Vm = self.mf.run_single_connectivity_sim(self.reshape_Matrix(res.x))
-        result = {'Ntot':n, 'x':res.x, 'residual':res.fun, 'x0':x0, 'X':X, 'Vm':Vm}
+        result = {'Ntot':n, 'x':res.x, 'residual':res.fun,
+                  'Model':self.Model, 'REC_POPS':self.REC_POPS,'AFF_POPS':self.AFF_POPS,
+                  'x0':x0, 'X':X, 'Vm':Vm, 'desired_Vm':self.desired_Vm}
                 
         self.save_config(result, i)
         
@@ -228,42 +174,75 @@ class StochasticSearch:
 
 if __name__=='__main__':
     
-    from model import Model
-    import sys
+
+    import argparse
+    parser=argparse.ArgumentParser()
+    parser.add_argument("protocol",\
+                        help="""
+                        Mandatory argument, either:
+                        - run
+                        - run-associated-spiking-network (or "rasn")
+                        - analyze
+                        - check
+                        - 
+                        """)
+    parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true")
+    parser.add_argument('-fn', "--filename", help="filename",type=str, default='')
+    parser.add_argument('-fd', "--folder", help="folder",type=str, default='')
+    parser.add_argument('-pfd', "--previous_folder", help="folder",type=str, default='')
+    parser.add_argument('-n', "--Nmax", help="folder",type=int, default=1)
     
-    if len(sys.argv)==2:
+    args = parser.parse_args()
+    
+    
         
-        _, protocol = sys.argv
-        folder, N = 'test', 1
-        
-    elif len(sys.argv)==3:
-        
-        _, protocol, folder = sys.argv
-        N = 1
-        
-    elif len(sys.argv)==4:
+    if args.protocol=='run': # run
 
-        _, protocol, folder, N = sys.argv
+        if os.path.isdir(args.folder):
+            search = StochasticSearch(Model,REC_POPS,AFF_POPS,
+                                      folder=args.folder,
+                                      run=True)
+            print('launching analysis with N=%i for folder %s [...]' % (args.Nmax, args.folder))
+            search.launch_search(args.Nmax)
+        else:
+            print('Need to create the folder, folder "%s" does not exists' % args.folder)
+            
         
-    else:
-        protocol, folder, N  = '', '', 1
+    elif args.protocol in ["run-associated-spiking-network", "rasn"]:
+
+        from model import Model, REC_POPS, AFF_POPS # TO BE REMOVED
+        from ntwk_sim import run_sim
+        
+        if args.folder and os.path.isdir(args.folder):
+            lf = [os.path.join(args.folder, f) for f in os.listdir(args.folder) if f.endswith('.npz')]
+        elif args.filename and os.path.isfile(args.filename):
+            lf = [args.filename]
+        else:
+            lf = []
+            print('provide a valid filename or a valid folder !')
+            
+        for fn in lf:
+
+            print('loading %s [...]' % fn)
+            data = load_dict(fn)
+
+            # TO BE REPLACED by "data['Model'], ..."
+            search = StochasticSearch(Model, REC_POPS, AFF_POPS, run=False) 
+            
+            M = search.reshape_Matrix(data['x'])
+            translate_SynapseMatrix_into_connectivity_proba(M, Model, REC_POPS, AFF_POPS)
+            run_sim(Model,REC_POPS,AFF_POPS,
+                    filename=fn.replace('.npz','.h5'), verbose=False)
 
         
-    if protocol=='-r': # run
-
-        search = StochasticSearch(Model,REC_POPS,AFF_POPS,
-                                  DA_folder=folder,
-                                  run=True)
-        search.launch_search(int(N))
-
-        
-    elif protocol=='-a': # analysis
+    elif args.protocol=='analysis': # analysis
         
         from datavyz import ges
         search = StochasticSearch(Model,REC_POPS,AFF_POPS,
-                                  DA_folder=folder,
+                                  folder=args.folder,
                                   run=False)
-        if folder_prev!='batch_test':
+        
+        if args.prev_folder!='':
             search.load_results(on_prev=True)
             search.load_results(on_prev=False)
         else:
@@ -273,33 +252,14 @@ if __name__=='__main__':
         ges.show()
 
         
-    elif protocol=='-t': # test
-
-        from model import Model, REC_POPS, AFF_POPS
-        from ntwk_sim import run_sim
-        
-        search = StochasticSearch(Model,REC_POPS,AFF_POPS,
-                                  DA_folder=folder,
-                                  run=False)
-
-        lf = [f for f in os.listdir(os.path.join('data', folder)) if f.endswith('.npz')]
-        fn = sorted(lf)[::-1][int(N)]
-
-        print('loading %s [...]' % fn)
-
-        data = load_dict(os.path.join('data',folder,fn))
-
-        M = search.reshape_Matrix(data['x'])
-        search.translate_SynapseMatrix_into_connectivity_proba(M, Model, REC_POPS, AFF_POPS)
-        run_sim(Model,REC_POPS,AFF_POPS,
-                filename=os.path.join('data',folder,fn.replace('.npz','.h5')),
-                verbose=False)
-            
-    else:
+    elif args.protocol=='check':
         # calibration protocol, we insure that the MF is accurately describing the NTWK
+            
         from model import Model, REC_POPS, AFF_POPS
         
-        search = StochasticSearch(Model, REC_POPS, AFF_POPS, run=True)
+        search = StochasticSearch(Model, REC_POPS, AFF_POPS,
+                                  folder='data/test',
+                                  run=True)
 
         # a few random configs:
         RESIDUALS = []
@@ -316,7 +276,7 @@ if __name__=='__main__':
         
         from ntwk_sim import run_sim, ge, COLORS
         # we need to translate the synapse matrix into a connectivity one
-        search.translate_SynapseMatrix_into_connectivity_proba(Matrix, Model, REC_POPS, AFF_POPS)
+        translate_SynapseMatrix_into_connectivity_proba(Matrix, Model, REC_POPS, AFF_POPS)
         run_sim(Model, REC_POPS, AFF_POPS, filename='data/test/stochastic-calibration.h5')
         
         import neural_network_dynamics.main as ntwk

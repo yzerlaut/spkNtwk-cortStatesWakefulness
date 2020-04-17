@@ -9,21 +9,38 @@ import neural_network_dynamics.main as ntwk
 from model import REC_POPS, AFF_POPS, Model
 from Umodel import Umodel
 
-residual_inclusion_threshold = 1000 # above this value of residual, we do not store the config
-INITIAL_LIMS = [[1,1500],
-                [1,80],
-                [1,320],
-                [1,40],
-                [1,40],
-                [1,40]]
-                
+def build_initial_grid(REC_POPS,
+                       AFF_POPS,
+                       INITIAL_LIMS = [[1,1500],
+                                       [1,80],
+                                       [1,320],
+                                       [1,40],
+                                       [1,40],
+                                       [1,40]]):
+    GRID0 = np.zeros((len(REC_POPS)+len(AFF_POPS), len(REC_POPS),2))
+    for i, j in itertools.product(range(len(REC_POPS)+len(AFF_POPS)), range(len(REC_POPS))):
+        GRID0[i,j,:] = np.array(INITIAL_LIMS[i])
+    return GRID0
 
-GRID0 = np.zeros((len(REC_POPS)+len(AFF_POPS), len(REC_POPS),2))
-for i, j in itertools.product(range(len(REC_POPS)+len(AFF_POPS)), range(len(REC_POPS))):
-    GRID0[i,j,:] = np.array(INITIAL_LIMS[i])
+def translate_SynapseMatrix_into_connectivity_proba(Matrix, Model, REC_POPS, AFF_POPS):
+    """
+    Sets the "Matrix" as the connectivity proba in "Model"
+    """
+    for i, source_pop in enumerate(REC_POPS+AFF_POPS):
+        for j, target_pop in enumerate(REC_POPS):
+            Model['p_%s_%s' % (source_pop, target_pop)] = Matrix[i,j]/Model['N_%s' % source_pop]
 
-
-class InterativeSearch:
+def reshape_SynapseMatrix_into_ConnecMatrix(Matrix, Model, REC_POPS, AFF_POPS):
+    """
+    uses the population number from "Model" to translate into connectivity
+    """
+    pconnMatrix = 0*Matrix
+    for i, pop in enumerate(REC_POPS+AFF_POPS):
+        pconnMatrix[i,:] = Matrix[i,:]/Model['N_%s' % pop]
+    return pconnMatrix    
+            
+    
+class IterativeSearch:
     """
     relies on a system of subfolders in data/
 
@@ -32,42 +49,50 @@ class InterativeSearch:
     ...
 
     """
-    def __init__(self, Model,
-                 previous_batch_folder='batch_test',
-                 new_batch_folder='batch_test',
+    def __init__(self, Model, REC_POPS, AFF_POPS,
+                 folder='data/test',
                  run=False,
+                 Ngrid_for_TF=100,
+                 grid_file = '',
+                 residual_inclusion_threshold=1000,# above this value, we do not store the config
                  desired_Vm_key='pyrExc'):
 
         self.Model = Model
-        self.desired_Vm_key = desired_Vm_key
+        self.REC_POPS, self.AFF_POPS = REC_POPS, AFF_POPS
         
-        self.previous_batch_folder = os.path.join('data', 'Mscan', previous_batch_folder)
-        self.new_batch_folder = os.path.join('data', 'Mscan', new_batch_folder)
-
-        if not os.path.exists(self.new_batch_folder):
-            os.makedirs(self.new_batch_folder)
-
+        self.desired_Vm_key = desired_Vm_key
+        self.idesired_Vm_key = np.argwhere(np.array(REC_POPS)==desired_Vm_key)[0][0]
+        
+        self.folder = folder
         self.CONFIGS, self.RESIDUAL = None, None
         self.result, self.new_result = None, None
 
-        if previous_batch_folder!='batch_test' and run:
-            self.load_results()
-            self.GRID = self.compute_new_grid()
+        if not grid_file:
+            print('/!\ No grid file provided, running on default (large) grid !!')
+            self.GRID = build_initial_grid(self.REC_POPS, self.AFF_POPS)
         else:
-            self.GRID = GRID0
-
-        self.Umodel = Umodel() # initialize U-model
+            self.GRID = np.load(grid_file)
+            print('running on grid:\n', self.GRID)
 
         if run:
+            
+            if not os.path.exists(folder):
+                os.makedirs(folder)
+                
+            self.Umodel = Umodel() # initialize U-model
+            
             # initialize mean-field
             self.mf = ntwk.FastMeanField(self.Model, REC_POPS, AFF_POPS, tstop=6.)
             self.X0 = [0*self.mf.t for i in range(len(REC_POPS))]
             self.mf.build_TF_func(100, with_Vm_functions=True, sampling='log')
             # initialize desired Vm trace from U-model
-            self.desired_Vm = self.Umodel.predict_Vm(self.mf.t, self.mf.FAFF[0,:])+Model['%s_El' % self.desired_Vm_key] # in mV
-        else:
-            self.prev_files = [f for f in os.listdir(self.previous_batch_folder) if f.endswith('.npy') ]
+            self.desired_Vm = self.Umodel.predict_Vm(self.mf.t, self.mf.FAFF[0,:])+\
+                Model['%s_El' % self.desired_Vm_key] # in mV
 
+        else:
+
+            self.load_results()
+        
         
     ##########################################################################
     #################    ANALYSIS    ##########################################
@@ -80,7 +105,20 @@ class InterativeSearch:
         
         pass
 
+    def show_new_grid(self, new_GRID, graph=None):
+
+        if graph is None:
+            from datavyz import ges as ge
+            
+        fig, ax = ge.parallel_plot(Y=[self.GRID[:,:,0].flatten(),
+                                      self.GRID[:,:,1].flatten(),
+                                      new_GRID[:,:,0].flatten(),
+                                      new_GRID[:,:,1].flatten()],
+                                   COLORS=['k', 'k', 'r', 'r'],
+                                   lw=2, fig_args={'figsize':(4,1)})
         
+        
+    
     def show_residuals_over_trials(self, graph=None, ax=None, threshold=100):
 
         if graph is None:
@@ -128,26 +166,6 @@ class InterativeSearch:
         return [self.result['configs'][i] for i in indices]
 
     
-    def translate_SynapseMatrix_into_connectivity_proba(self, Matrix, Model, REC_POPS, AFF_POPS):
-
-        for i, source_pop in enumerate(REC_POPS+AFF_POPS):
-            for j, target_pop in enumerate(REC_POPS):
-                Model['p_%s_%s' % (source_pop, target_pop)] = Matrix[i,j]/Model['N_%s' % source_pop]
-                # print('p_%s_%s = %.1f%%' % (source_pop, target_pop,\
-                #                             100*Matrix[i,j]/Model['N_%s' % source_pop]))
-
-
-    def reshape_SynapseMatrix_into_ConnecMatrix(self, Matrix, Model, REC_POPS, AFF_POPS):
-        """
-        uses the population number from "Model" to translate into connectivity
-        """
-        pconnMatrix = 0*Matrix
-        for i, pop in enumerate(REC_POPS+AFF_POPS):
-            N = Model['N_%s' % pop]
-            pconnMatrix[i,:] = Matrix[i,:]/N
-        return pconnMatrix    
-
-
     
     ##########################################################################
     #################    SIMULATION    #######################################
@@ -157,15 +175,15 @@ class InterativeSearch:
                          Nbest_criteria=100,
                          variance_factor=1.5):
 
-        print('computing new grid from the data of %s [...]' % self.previous_batch_folder)
+        print('computing new grid from the data of %s [...]' % self.folder)
         GRID1 = np.zeros((len(REC_POPS)+len(AFF_POPS), len(REC_POPS), 2))
 
         CONFIGS = np.array(self.get_x_best_configs(Nbest_criteria))
         for i, spop in enumerate(REC_POPS+AFF_POPS):
             for j, tpop in enumerate(REC_POPS):
                 mean, std = CONFIGS[:,i,j].mean(), CONFIGS[:,i,j].std()
-                GRID1[i,j,:] = [np.max([1,mean-variance_factor*std]),
-                                np.min([GRID0[i,j,1],mean+variance_factor*std])]
+                GRID1[i,j,:] = [np.max([self.GRID[i,j,0],mean-variance_factor*std]),
+                                np.min([self.GRID[i,j,1],mean+variance_factor*std])]
 
         return GRID1
     
@@ -239,16 +257,13 @@ class InterativeSearch:
             print('\nScan stopped !')
 
 
-    def load_results(self, on_prev=True):
+    def load_results(self):
 
         result = {'Ntot':0, 'configs':[], 'residuals':[]}
-        if on_prev:
-            folder = self.previous_batch_folder
-        else:
-            folder = self.new_batch_folder
 
-        for i, f in enumerate(os.listdir(folder)):
-            data = load_dict(os.path.join(folder, f))
+        lf = [os.path.join(self.folder, f) for f in os.listdir(self.folder) if f.endswith('.npz')]
+        for i, f in enumerate(lf):
+            data = load_dict(f)
             result['Ntot'] += data['Ntot']
             if type(data['residuals']) is float:
                 result['configs'] = result['configs'] +list([data['configs']])
@@ -257,91 +272,111 @@ class InterativeSearch:
                 result['configs'] = result['configs'] +list(data['configs'])
                 result['residuals'] = np.concatenate([result['residuals'],data['residuals']])
 
-        if on_prev:
-            self.result = result
-        else:
-            self.new_result = result
+        self.result = result
             
-
         
 
 if __name__=='__main__':
     
-    from model import Model
-    import sys
+    import argparse
+    parser=argparse.ArgumentParser()
+    parser.add_argument("protocol",\
+                        help="""
+                        Mandatory argument, either:
+                        - run
+                        - analyze-grid
+                        - run-associated-spiking-network (or "rasn")
+                        - analyze
+                        - check
+                        - 
+                        """)
+    parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true")
+    parser.add_argument('-fn', "--filename", help="filename",type=str, default='')
+    parser.add_argument('-gf', "--grid_file", help="filename for grid file",type=str,default='')
+    parser.add_argument('-fd', "--folder", help="folder",type=str, default='')
+    parser.add_argument('-pfd', "--previous_folder", help="folder",type=str, default='')
+    parser.add_argument('-n', "--Nbest", help="N criteria",type=int, default=100)
+    parser.add_argument('-vf', "--variance_factor", type=float, default=1.5)
     
-    if len(sys.argv)==3:
-        
-        _, protocol, folder = sys.argv
-        folder_prev, N = 'batch_test', 1
-        
-    elif len(sys.argv)==4:
+    args = parser.parse_args()
 
-        _, protocol, folder_prev, folder = sys.argv
-        N=1
-
-    elif len(sys.argv)==5:
-
-        _, protocol, folder_prev, folder, N = sys.argv
-        
-    if protocol=='-r': # run
-        search = InterativeSearch(Model,
-                                  previous_batch_folder=folder_prev,
-                                  new_batch_folder=folder,
-                                  run=True)
-        search.launch_search()
-
-    elif protocol=='-a': # analysis
-        from datavyz import ges
-        search = InterativeSearch(Model,
-                                  previous_batch_folder=folder_prev,
-                                  new_batch_folder=folder,
-                                  run=False)
-        if folder_prev!='batch_test':
-            search.load_results(on_prev=True)
-            search.load_results(on_prev=False)
+    if args.protocol=='run':
+        if args.folder and os.path.isdir(args.folder):
+            from model import Model, REC_POPS, AFF_POPS
+            search = IterativeSearch(Model,REC_POPS, AFF_POPS,
+                                     grid_file=args.grid_file,
+                                     folder=args.folder,
+                                     run=True)
+            search.launch_search()
         else:
-            search.load_results()
-        
-        fig, ax = search.show_residuals_over_trials(ges)
-        ges.show()
-
-    elif protocol=='-t': # test
-
-        from model import Model, REC_POPS, AFF_POPS
-        from ntwk_sim import run_sim
-        search = InterativeSearch(Model,
-                                  previous_batch_folder=folder,
-                                  run=True)
-        search.load_results()
-
-        for i, M in enumerate(search.get_x_best_configs(int(N))):
-            print("""
-
-
-            --------------------------------------------------------------------
-            """)
-            X = search.mf.run_single_connectivity_sim(M)
-            mf_data = {'X':X, 'Vm':search.compute_Vm(X), 't':1e3*search.mf.t,
-                       'residual':search.compute_Vm_residual(X),
-                       'desired_Vm':search.desired_Vm}
-            save_dict(os.path.join('data',folder,'mf_%i.npz' % (i+1)), mf_data)
-            search.translate_SynapseMatrix_into_connectivity_proba(M, Model, REC_POPS, AFF_POPS)
-            run_sim(Model, filename=os.path.join('data',folder,'ntwk_%i.h5' % (i+1)), verbose=False)
+            print('provide a folder name, "%s" is not a valid folder')
             
-    else:
-        print("""
-
-        use as :
-
-        python iterative_random_search.py -r bt
-
-
-        """)
-        search = InterativeSearch(Model, run=True)
-        search.run_single_sim(search.mf.ecMatrix)
+    elif args.protocol in ['analyze-grid', 'ag']:
+        search = IterativeSearch(Model,REC_POPS, AFF_POPS,
+                                 grid_file=args.grid_file,
+                                 folder=args.folder,
+                                 run=False)
         
-    # search.run_simulation_set_batch()
-    # search.save_config()
-    # save_config(CONFIGS, RESIDUAL)
+        new_GRID = search.compute_new_grid(Nbest_criteria=args.Nbest,
+                                           variance_factor=args.variance_factor)
+
+        search.show_new_grid(new_GRID)
+        np.save(os.path.join(args.folder, 'grid.npy'), new_GRID)
+        print('Grid array now saved as: %s ' % os.path.join(args.folder, 'grid.npy'))
+
+        ntwk.show()
+
+    # elif protocol=='-a': # analysis
+    #     from datavyz import ges
+    #     search = IterativeSearch(Model,
+    #                               previous_batch_folder=folder_prev,
+    #                               new_batch_folder=folder,
+    #                               run=False)
+    #     if folder_prev!='batch_test':
+    #         search.load_results(on_prev=True)
+    #         search.load_results(on_prev=False)
+    #     else:
+    #         search.load_results()
+        
+    #     fig, ax = search.show_residuals_over_trials(ges)
+    #     ges.show()
+
+    # elif protocol=='-t': # test
+
+    #     from model import Model, REC_POPS, AFF_POPS
+    #     from ntwk_sim import run_sim
+    #     search = IterativeSearch(Model,
+    #                               previous_batch_folder=folder,
+    #                               run=True)
+    #     search.load_results()
+
+    #     for i, M in enumerate(search.get_x_best_configs(int(N))):
+    #         print("""
+
+
+    #         --------------------------------------------------------------------
+    #         """)
+    #         X = search.mf.run_single_connectivity_sim(M)
+    #         mf_data = {'X':X, 'Vm':search.compute_Vm(X), 't':1e3*search.mf.t,
+    #                    'residual':search.compute_Vm_residual(X),
+    #                    'desired_Vm':search.desired_Vm}
+    #         save_dict(os.path.join('data',folder,'mf_%i.npz' % (i+1)), mf_data)
+    #         search.translate_SynapseMatrix_into_connectivity_proba(M, Model, REC_POPS, AFF_POPS)
+    #         run_sim(Model, filename=os.path.join('data',folder,'ntwk_%i.h5' % (i+1)), verbose=False)
+            
+    # else:
+    #     print("""
+
+    #     use as :
+
+    #     python iterative_random_search.py -r bt
+
+
+    #     """)
+    #     search = IterativeSearch(Model, run=True)
+    #     search.run_single_sim(search.mf.ecMatrix)
+        
+    # # search.run_simulation_set_batch()
+    # # search.save_config()
+    # # save_config(CONFIGS, RESIDUAL)
     

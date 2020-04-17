@@ -83,12 +83,12 @@ def plot_sim(filename, ge):
     from model import REC_POPS, AFF_POPS
     ## load file
     data = ntwk.load_dict_from_hdf5(filename)
-    # for key in Model:
-    #     print(key, '-->', data[key])
+    
     # ## plot
     fig, AX = ntwk.activity_plots(data,
                                   smooth_population_activity=10,
-                                  COLORS=COLORS)
+                                  COLORS=COLORS,
+                                  pop_act_log_scale=True)
     
     try:
         mf_data = load_dict(filename.replace('ntwk', 'mf').replace('.h5', '.npz'))
@@ -103,7 +103,7 @@ def plot_sim(filename, ge):
     except FileNotFoundError:
         pass
         
-    figM, _, _ = plot_matrix(data, REC_POPS, AFF_POPS, ge)
+    # figM, _, _ = plot_matrix(data, REC_POPS, AFF_POPS, ge)
     
     ntwk.show()
     # ge.show()
