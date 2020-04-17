@@ -10,7 +10,7 @@ Umodel_params = {
     'rise_asynch_Fmodul_in_Hz':4.,
     # Vm
     'max_delta_envelope_mV':15.,
-    'max_asynch_level_mV':20.,
+    'max_asynch_level_mV':17.,
     'max_gamma_envelope_mV':5.,
     'rise_asynch_envelope_Firing_in_Hz':3.,
     # rate

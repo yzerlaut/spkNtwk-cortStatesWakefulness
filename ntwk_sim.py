@@ -13,16 +13,21 @@ from datavyz import ge
 COLORS=[ge.g, ge.b, ge.r, ge.purple, 'k', 'dimgrey']
 
 
-def run_sim(Model, REC_POPS, AFF_POPS,
+#######################################
+#####  RUNNING SIMULATIONS ############
+#######################################
+
+def run_sim(Model,
             filename='draft_data.h5', verbose=True):
 
     ######################
     ## ----- Run  ----- ##
     ######################
-    
+
+    REC_POPS, AFF_POPS = list(Model['REC_POPS']), list(Model['AFF_POPS'])
     # Model['tstop'], Model['dt'] = 6000, 0.1
 
-    print('initializing simulation for %s [...]' % filename)
+    print('--initializing simulation for %s [...]' % filename)
 
     t_array = ntwk.arange(int(Model['tstop']/Model['dt']))*Model['dt']
     faff =  ntwk.stim_waveforms.IncreasingSteps(t_array, 'AffExc', Model, translate_to_SI=False)
@@ -66,7 +71,7 @@ def run_sim(Model, REC_POPS, AFF_POPS,
     #####################
     ## ----- Run ----- ##
     #####################
-    print('running simulation for %s [...]' % filename)
+    print('----   running simulation for %s [...]' % filename)
     network_sim = ntwk.collect_and_run(NTWK, verbose=verbose)
 
     #####################
@@ -75,12 +80,52 @@ def run_sim(Model, REC_POPS, AFF_POPS,
     ntwk.write_as_hdf5(NTWK, filename=filename)
     print('[ok] Results of the simulation are stored as:', filename)
 
+
+#############################################
+#####  RUNNING (SLOW) MEAN_FIELD ############
+#############################################
+
+def run_slow_mf(filename):
+    """
+    always respective to a spiking network num. sim
+    """
+
+    print('--   running (slow) mean-field for %s [...]' % filename)
+    data = ntwk.load_dict_from_hdf5(filename)
+    Model = data
+        
+    tstop, dt = 1e-3*data['tstop'], 1e-2
+    subsampling = int(dt/(1e-3*data['dt']))
+    # subsampled t-axis
+    t_sim = np.arange(int(data['tstop']/data['dt']))*data['dt']
+    t = 1e-3*t_sim[::subsampling]
+
+    DYN_SYSTEM, INPUTS = {}, {}
+    for rec in list(data['REC_POPS']):
+        Model['COEFFS_%s' % rec] = np.load('data/COEFFS_pyrExc.npy')
+        DYN_SYSTEM[rec] = {'aff_pops':list(data['AFF_POPS']), 'x0':1e-2}
+        INPUTS['AffExc_%s' % rec] = data['Rate_AffExc_%s' % rec][::subsampling]
+        INPUTS['NoiseExc_%s' % rec] = data['Rate_NoiseExc_%s' % rec][::subsampling]
     
-def plot_sim(filename, ge):
-    ######################
-    ## ----- Plot ----- ##
-    ######################
-    from model import REC_POPS, AFF_POPS
+    CURRENT_INPUTS = {'oscillExc':Model['oscillExc_Ioscill_amp']*(1-np.cos(Model['oscillExc_Ioscill_freq']*2*np.pi*t))/2.}
+    
+    X = ntwk.mean_field.solve_mean_field_first_order(Model,
+                                                         DYN_SYSTEM,
+                                                         INPUTS=INPUTS,
+                                                         CURRENT_INPUTS=CURRENT_INPUTS,
+                                                         dt=dt, tstop=tstop)
+    
+    np.savez(filename.replace('.ntwk.h5', '.mf.npz'), **X)
+
+    
+#######################################
+##### PLOTTING SIMULATIONS ############
+#######################################
+    
+def plot_sim(filename, ge,
+             omf_data=None,
+             mf_data=None):
+    
     ## load file
     data = ntwk.load_dict_from_hdf5(filename)
     
@@ -89,28 +134,41 @@ def plot_sim(filename, ge):
                                   smooth_population_activity=10,
                                   COLORS=COLORS,
                                   pop_act_log_scale=True)
-    
-    try:
-        mf_data = load_dict(filename.replace('ntwk', 'mf').replace('.h5', '.npz'))
-        if 't' not in mf_data:
-            mf_data['t'] = np.linspace(0, data['tstop'], mf_data['Vm'].shape[1])
-        for i, label in enumerate(REC_POPS):
-            AX[-1].plot(mf_data['t'], mf_data['X'][i,:], '--', lw=0.5, color=COLORS[i])
-            AX[2+i].plot(mf_data['t'], 1e3*mf_data['Vm'][i,:], 'k-', lw=1, label='mean-field')
-        # then Vm vs U-model vs MF
-        #AX[2].plot(mf_data['t'], mf_data['desired_Vm'], 'k--', lw=2, label='U-model')
-        AX[2].legend(frameon=False, loc='best')
-    except FileNotFoundError:
-        pass
+
+
+    if mf_data is None:
+
+        mf = ntwk.FastMeanField(data, tstop=6.)
+        mf.build_TF_func(tf_sim_file='neural_network_dynamics/theory/tf_sim_points.npz')
+        X, Vm = mf.run_single_connectivity_sim(mf.ecMatrix, verbose=True)
+        t = np.linspace(0, data['tstop'], X.shape[1])
+        for i, label in enumerate(data['REC_POPS']):
+            AX[-1].plot(t, X[i,:], '--', lw=0.5, color=COLORS[i])
+            AX[2+i].plot(t, 1e3*Vm[i,:], 'k-', lw=1, label='mean-field')
+        # AX[2].plot(mf_data['t'], mf_data['desired_Vm'], 'k--', lw=2, label='U-model')
+        # AX[2].legend(frameon=False, loc='best')
+
         
-    # figM, _, _ = plot_matrix(data, REC_POPS, AFF_POPS, ge)
+    if omf_data is None:
+        try:
+            omf_data = load_dict(filename.replace('ntwk.h5', 'mf.npz'))
+        except FileNotFoundError:
+            pass
+    if omf_data is not None:
+        t = np.linspace(0, data['tstop'], len(omf_data['pyrExc']))
+        for i, label in enumerate(data['REC_POPS']):
+            AX[-1].plot(t, omf_data[label], '--', lw=4, color=COLORS[i])
+            # AX[-1].plot(t, omf_data[label], 'k--')
+        
+    # figM, _, _ = plot_matrix(data, ge)
     
     ntwk.show()
     # ge.show()
     
 
-def plot_matrix(Model, REC_POPS, AFF_POPS):
+def plot_matrix(Model):
 
+    REC_POPS, AFF_POPS = Model['REC_POPS'], Model['AFF_POPS']
 
     pconnMatrix = np.zeros((len(REC_POPS)+len(AFF_POPS), len(REC_POPS)))
     
@@ -152,10 +210,8 @@ def plot_matrix(Model, REC_POPS, AFF_POPS):
     
 if __name__=='__main__':
 
-    plot_sim(sys.argv[-1], ge)
-    
-    # try:
-    #     plot_sim(sys.argv[-1])
-    # except BaseException:
-    #     pass
+    if sys.argv[-1]=='mf':
+        run_slow_mf(sys.argv[-2])
+    else:
+        plot_sim(sys.argv[-1], ge)
     

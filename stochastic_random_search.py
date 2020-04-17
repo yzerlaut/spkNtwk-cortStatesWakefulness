@@ -109,7 +109,7 @@ class StochasticSearch:
         
     def compute_Vm_residual(self, Vm):
         cond = (Vm>-100) & (Vm<=-30)
-        residual = np.sum((Vm-self.desired_Vm)**2)/np.sum((self.desired_Vm)**2)
+        residual = np.sqrt(np.sum((Vm-self.desired_Vm)**2)/np.sum((self.desired_Vm)**2))
         if np.isfinite(residual):
             return residual
         else:

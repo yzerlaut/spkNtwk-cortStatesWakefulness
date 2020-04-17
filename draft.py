@@ -30,12 +30,13 @@ if sys.argv[-1]=='plot':
     
     ntwk.show()
 
+    
 elif sys.argv[-1]=='mf':
     ################################
     ## -- Mean-Field (fast) ----- ##
     ################################
 
-    mf = ntwk.FastMeanField(Model, REC_POPS, AFF_POPS, tstop=6.)
+    mf = ntwk.FastMeanField(Model, tstop=6.)
 
     mf.build_TF_func(100, with_Vm_functions=True, sampling='log')
     X, Vm = mf.run_single_connectivity_sim(mf.ecMatrix, verbose=True)
@@ -88,6 +89,7 @@ elif sys.argv[-1]=='old-mf':
                                                          CURRENT_INPUTS=CURRENT_INPUTS,
                                                          dt=dt, tstop=tstop)
         np.savez('data/draft_mf_result.npz', **X)
+        
     else:
         X = load_dict('data/draft_mf_result.npz')
     

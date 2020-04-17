@@ -1,17 +1,8 @@
-import sys, pathlib
-sys.path.append(str(pathlib.Path(__file__).resolve().parents[1]))
-import neural_network_dynamics.main as ntwk
-from graphs.my_graph import graphs
-mg = graphs() # initiate a custom plotting environment
-
-
 ################################################################
 ## ------ Construct populations with their equations -------- ##
 ## ------------- with recurrent connections ----------------- ##
 ################################################################
 
-REC_POPS = ['pyrExc', 'oscillExc', 'recInh', 'dsInh']
-AFF_POPS = ['AffExc', 'NoiseExc']
 
 # adding the same LIF props to all recurrent pops
 LIF_props = {'Gl':10., 'Cm':200.,'Trefrac':5.,
@@ -20,12 +11,17 @@ LIF_props = {'Gl':10., 'Cm':200.,'Trefrac':5.,
 
 Model = {
     ## -----------------------------------------
-    ### Initialisation by default parameters
-    ## UNIT SYSTEM is : ms, mV, pF, nS, pA, Hz
-    ## (arbitrary and unconsistent, so see code)
+    ### Model properties
+    ## -----------------------------------------
+    ## UNIT SYSTEM is : ms, mV, pF, nS, pA, Hz (arbitrary and unconsistent, so see code)
     ## ------------------------------------------
+    ##
+    ## POPULATIONS
+    'REC_POPS':['pyrExc', 'oscillExc', 'recInh', 'dsInh'],
+    'AFF_POPS':['AffExc', 'NoiseExc'],
     # numbers of neurons in population
-    'N_pyrExc':4000, 'N_recInh':1000, 'N_dsInh':500, 'N_AffExc':100, 'N_NoiseExc':200, 'N_oscillExc':100,
+    'N_pyrExc':4000, 'N_recInh':1000, 'N_dsInh':500, 'N_oscillExc':100,
+    'N_AffExc':100, 'N_NoiseExc':200,
     # synaptic time constants
     'Tse':5., 'Tsi':5.,
     # synaptic reversal potentials
@@ -36,7 +32,7 @@ Model = {
     'dt':0.1, 'tstop': 6000., 'SEED':3, # low by default, see later
 }
 
-for pop in REC_POPS:
+for pop in Model['REC_POPS']:
     for key, val in LIF_props.items():
         Model['%s_%s' % (pop, key)] = val
 # adding the oscillatory feature to the oscillExc pop
@@ -54,15 +50,15 @@ Model['AffExc_IncreasingStep_smoothing']= 100
 Qe, Qi = 2., 10 # nS
 # loop oover the two population types
 for aff in ['pyrExc', 'oscillExc', 'NoiseExc', 'AffExc']:
-    for target in REC_POPS:
+    for target in Model['REC_POPS']:
         Model['Q_%s_%s' % (aff, target)] = Qe
 for aff in ['recInh', 'dsInh']:
-    for target in REC_POPS:
+    for target in Model['REC_POPS']:
         Model['Q_%s_%s' % (aff, target)] = Qi
 
 # === initializing connectivity === #         
-for aff in REC_POPS+AFF_POPS:
-    for target in REC_POPS:
+for aff in Model['REC_POPS']+Model['AFF_POPS']:
+    for target in Model['REC_POPS']:
         Model['p_%s_%s' % (aff, target)] = 0.01 # minimal connectivity by default
 
 # -------------------------------
