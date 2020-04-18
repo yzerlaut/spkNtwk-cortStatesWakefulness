@@ -114,7 +114,7 @@ def run_slow_mf(filename):
                                                          INPUTS=INPUTS,
                                                          CURRENT_INPUTS=CURRENT_INPUTS,
                                                          dt=dt, tstop=tstop)
-    
+
     np.savez(filename.replace('.ntwk.h5', '.mf.npz'), **X)
 
     
@@ -124,6 +124,7 @@ def run_slow_mf(filename):
     
 def plot_sim(filename, ge,
              omf_data=None,
+             Umodel_data=None,
              mf_data=None):
     
     ## load file
@@ -135,15 +136,18 @@ def plot_sim(filename, ge,
                                   COLORS=COLORS,
                                   pop_act_log_scale=True)
 
+    if Umodel_data is not None:
+        AX[2].plot(Umodel_data['t'],
+                   Umodel_data['desired_Vm'], '-', lw=2, color='dimgrey', label='mean-field')
 
     if mf_data is None:
 
-        mf = ntwk.FastMeanField(data, tstop=6.)
+        mf = ntwk.FastMeanField(data, tstop=6., dt=2.5e-3, tau=20e-3)
         mf.build_TF_func(tf_sim_file='neural_network_dynamics/theory/tf_sim_points.npz')
         X, Vm = mf.run_single_connectivity_sim(mf.ecMatrix, verbose=True)
         t = np.linspace(0, data['tstop'], X.shape[1])
         for i, label in enumerate(data['REC_POPS']):
-            AX[-1].plot(t, X[i,:], '--', lw=0.5, color=COLORS[i])
+            AX[-1].plot(t, 1e-2+X[i,:], '--', lw=1, color=COLORS[i])
             AX[2+i].plot(t, 1e3*Vm[i,:], 'k-', lw=1, label='mean-field')
         # AX[2].plot(mf_data['t'], mf_data['desired_Vm'], 'k--', lw=2, label='U-model')
         # AX[2].legend(frameon=False, loc='best')
@@ -157,10 +161,10 @@ def plot_sim(filename, ge,
     if omf_data is not None:
         t = np.linspace(0, data['tstop'], len(omf_data['pyrExc']))
         for i, label in enumerate(data['REC_POPS']):
-            AX[-1].plot(t, omf_data[label], '--', lw=4, color=COLORS[i])
+            AX[-1].plot(t, 1e-2+omf_data[label], '-', lw=4, color=COLORS[i], alpha=.5)
             # AX[-1].plot(t, omf_data[label], 'k--')
         
-    # figM, _, _ = plot_matrix(data, ge)
+    figM, _, _ = plot_matrix(data)
     
     ntwk.show()
     # ge.show()
@@ -168,17 +172,15 @@ def plot_sim(filename, ge,
 
 def plot_matrix(Model):
 
-    REC_POPS, AFF_POPS = Model['REC_POPS'], Model['AFF_POPS']
+    REC_POPS, AFF_POPS = list(Model['REC_POPS']), list(Model['AFF_POPS'])
 
     pconnMatrix = np.zeros((len(REC_POPS)+len(AFF_POPS), len(REC_POPS)))
     
     for i, source_pop in enumerate(REC_POPS+AFF_POPS):
         for j, target_pop in enumerate(REC_POPS):
             pconnMatrix[i,j] = Model['p_%s_%s' % (source_pop, target_pop)]
-            print('Model["p_%s_%s"] = %.4f' % (source_pop, target_pop, Model['p_%s_%s' % (source_pop, target_pop)]))
     
-    fig, ax, acb = ge.figure(figsize=(1.,1.),
-                             with_bar_legend=True)
+    fig, ax = ge.figure(right=5.)
     
     Lims = [np.round(100*pconnMatrix.min(),1)-.1,np.round(100*pconnMatrix.max(),1)+.1]
     
@@ -193,8 +195,11 @@ def plot_matrix(Model):
         ge.annotate(ax, label, (i/m+.25, -0.1),\
                     ha='right', va='top', color=COLORS[i], rotation=65)
     
-    ge.build_bar_legend_continuous(acb, ge.viridis, bounds=[Lims[0], Lims[1]],
-                                   label='$p_{conn}$ (%)')
+    acb = ge.bar_legend(fig,
+                        inset=dict(rect=[.72,.3,.03,.5], facecolor=None),
+                        colormap=ge.viridis,
+                        bounds=[Lims[0], Lims[1]],
+                        label='$p_{conn}$ (%)')
     ge.set_plot(ax,
                 ['left', 'bottom'],
                 tck_outward=0,

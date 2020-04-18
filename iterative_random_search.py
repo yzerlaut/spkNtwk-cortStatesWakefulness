@@ -254,13 +254,14 @@ class IterativeSearch:
                                                          with_microseconds=True,
                                                          extension='.scan.h5'))
         
-    def launch_search(self, batch_size=1000):
+    def launch_search(self, batch_size=1000, n_batch=0):
         
         warnings.filterwarnings("error") # so that Runtime warnings are catched !
-        
+        if n_batch==0:
+            n_batch = 1e10
         i=1
         try:
-            while True:
+            while i<(n_batch+1):
                 print('\n---------- running scan %i [...]' % i)
                 self.run_simulation_set(i, n=batch_size)
                 i+=1
@@ -314,9 +315,11 @@ if __name__=='__main__':
     parser.add_argument('-pfd', "--previous_folder", help="folder",type=str, default='')
     parser.add_argument('-n', "--Nbest", help="N criteria",type=int, default=100)
     parser.add_argument('-vf', "--variance_factor", type=float, default=1.5)
-    parser.add_argument('-rit', "--residual_inclusion_threshold", type=float, default=1.)
+    parser.add_argument('-rit', "--residual_inclusion_threshold", type=float, default=0.1)
     parser.add_argument('-bs', "--batch_size", help="batch size of random search",
                         type=int, default=1000)
+    parser.add_argument('-nb', "--n_batch", help="number of batches of random search",
+                        type=int, default=0)
     
     
     args = parser.parse_args()
@@ -331,7 +334,8 @@ if __name__=='__main__':
                                      folder=args.data_folder,
                                      residual_inclusion_threshold=args.residual_inclusion_threshold,
                                      run=True)
-            search.launch_search(args.batch_size)
+            search.launch_search(args.batch_size,
+                                 n_batch=args.n_batch)
         else:
             print('provide a folder name, "%s" is not a valid folder')
 
@@ -388,15 +392,13 @@ if __name__=='__main__':
         from ntwk_sim import plot_sim
         from datavyz import ge
         
-        mf_data = {'t':1e3*results['t'], 'desired_Vm':results['desired_Vm']}
+        Umodel_data = {'t':1e3*results['t'], 'desired_Vm':results['desired_Vm']}
         for i in results['i_sorted_residuals'][:args.Nbest]:
-
+            print(i, results['residuals'][i])
+            
             fn = results['associated_ntwk_sim_filename'][i]
             if os.path.isfile(fn):
-                mf_data['X'], mf_data['Vm'] = results['X'][i], results['Vm'][i]
-                # Matrix = results['configs'][i]
-                # translate_SynapseMatrix_into_connectivity_proba(Matrix, Model,REC_POPS,AFF_POPS)
-                plot_sim(fn, ge, mf_data=mf_data)
+                plot_sim(fn, ge, Umodel_data=Umodel_data)
             else:
                 print('file "%s" of index "%i" is not available' % (fn, i))
                 
