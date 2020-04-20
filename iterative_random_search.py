@@ -94,7 +94,7 @@ class IterativeSearch:
 
         else:
 
-            self.load_results()
+            self.result = load_results(folder)
         
         
     ##########################################################################
@@ -182,8 +182,8 @@ class IterativeSearch:
         GRID1 = np.zeros((len(self.REC_POPS)+len(self.AFF_POPS), len(self.REC_POPS), 2))
 
         CONFIGS = np.array(self.get_x_best_configs(Nbest_criteria))
-        for i, spop in enumerate(REC_POPS+AFF_POPS):
-            for j, tpop in enumerate(REC_POPS):
+        for i, spop in enumerate(self.REC_POPS+self.AFF_POPS):
+            for j, tpop in enumerate(self.REC_POPS):
                 mean, std = CONFIGS[:,i,j].mean(), CONFIGS[:,i,j].std()
                 GRID1[i,j,:] = [np.max([self.GRID[i,j,0],mean-variance_factor*std]),
                                 np.min([self.GRID[i,j,1],mean+variance_factor*std])]
@@ -269,23 +269,29 @@ class IterativeSearch:
             print('\nScan stopped !')
 
 
-def load_results(folder):
+def load_results(folder,
+                 i0=0, i1=100000,
+                 residual_inclusion_threshold=0.1):
 
     lf = [os.path.join(folder, f) for f in os.listdir(folder) if f.endswith('.scan.h5')]
-    for i, f in enumerate(lf):
+    
+    for i, f in enumerate(lf[i0:i1]):
         result_set = load_dict_from_hdf5(f)
         if i==0:
             full_result = copy.deepcopy(result_set)
         else:
             full_result['Ntot'] += result_set['Ntot']
-            full_result['Vm'] = list(full_result['Vm']) +list(result_set['Vm'])
-            full_result['X'] = list(full_result['X']) +list(result_set['X'])
-            full_result['configs'] = list(full_result['configs']) +list(result_set['configs'])
+            # possibilityto re-sharpen the inclusion threshold here:
+            cond = result_set['residuals']<residual_inclusion_threshold
+            full_result['Vm'] = list(full_result['Vm']) +list(result_set['Vm'][cond])
+            full_result['X'] = list(full_result['X']) +list(result_set['X'][cond])
+            
+            full_result['configs'] = list(full_result['configs']) +list(result_set['configs'][cond])
             full_result['residuals'] = np.concatenate([full_result['residuals'],
-                                                       result_set['residuals']])
+                                                       result_set['residuals'][cond]])
             full_result['associated_ntwk_sim_filename'] = np.concatenate(\
                                         [full_result['associated_ntwk_sim_filename'],
-                                         result_set['associated_ntwk_sim_filename']])
+                                         result_set['associated_ntwk_sim_filename'][cond]])
 
     full_result['i_sorted_residuals'] = np.argsort(full_result['residuals'])
             
@@ -315,11 +321,13 @@ if __name__=='__main__':
     parser.add_argument('-pfd', "--previous_folder", help="folder",type=str, default='')
     parser.add_argument('-n', "--Nbest", help="N criteria",type=int, default=100)
     parser.add_argument('-vf', "--variance_factor", type=float, default=1.5)
-    parser.add_argument('-rit', "--residual_inclusion_threshold", type=float, default=0.1)
+    parser.add_argument('-rit', "--residual_inclusion_threshold", type=float, default=0.06)
     parser.add_argument('-bs', "--batch_size", help="batch size of random search",
                         type=int, default=1000)
     parser.add_argument('-nb', "--n_batch", help="number of batches of random search",
                         type=int, default=0)
+    parser.add_argument("--i0", type=int, default=0)
+    parser.add_argument("--i1", type=int, default=1000000)
     
     
     args = parser.parse_args()
@@ -341,7 +349,8 @@ if __name__=='__main__':
 
             
     elif args.protocol in ['analyze-grid', 'ag']:
-        
+
+        from model import Model
         search = IterativeSearch(Model,
                                  grid_file=args.grid_file,
                                  folder=args.data_folder,
@@ -367,7 +376,7 @@ if __name__=='__main__':
         from ntwk_sim import run_sim, run_slow_mf
 
         for i in results['i_sorted_residuals'][:args.Nbest]:
-            print(i, results['residuals'][i])
+            print(i, results['Ntot'], results['residuals'][i])
 
             fn, sim = results['associated_ntwk_sim_filename'][i], True
             if os.path.isfile(fn) and not args.force:
@@ -382,6 +391,21 @@ if __name__=='__main__':
                 run_slow_mf(fn)
             
 
+    elif args.protocol in ["reduce-data", "rd"]:
+
+        if args.data_folder and os.path.isdir(args.data_folder):
+            results = load_results(args.data_folder,
+                                   args.i0, args.i1,
+                                   args.residual_inclusion_threshold)
+            save_dict_to_hdf5(results, filename_with_datetime('', folder=args.data_folder,
+                                                              with_microseconds=True,
+                                                              extension='.Mscan.h5'))
+            
+            
+        else:
+            raise NameError('provide a valid folder !')
+
+                    
     elif args.protocol in ["analyze-sim", "as"]:
 
         if args.data_folder and os.path.isdir(args.data_folder):
