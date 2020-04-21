@@ -1,27 +1,21 @@
-Title: A Spiking Network Model for the Modulation of Sensory Cortex Dynamics and Function during Wakefulness
-Authors: Yann Zerlaut{1,2}
-Short Title: A spiking model for the modulation of sensation
-Short Authors: Y. Zerlaut
-Affiliations: {1} ICM, Brain and Spine Institute, Hôpital de la Pitié-Salpêtrière, Sorbonne Université, Inserm, CNRS, Paris, France {2} Neuroinformatics group, Centre National de la Recherche Scientifique, Gif sur Yvette France. 
-Correspondence: yann.zerlaut@cnrs.fr
-Keywords: spiking network model, cortical states, wakefulness, neural coding
-Acknowledgements: I thank Andrew Davison, Nelson Rebola and Alberto Bacci for support and discussions. I thank [...] for feedback on the manuscript.
-Funding: This research was supported by a postdoctoral fellowship from the Fondation pour la Recherche Médicale (No ARF201909009117). This project has received funding from the European Union’s Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No 892175 (InProSMod).
-Data Availability: The integrality of the simulations and analysis of the main and supplementary material are publicly available at the following address: https://github.com/yzerlaut/spkNtwk-cortStatesWakefulness/ 
+#+Title: A Spiking Network Model for the Modulation of Cortical Dynamics and Function during Wakefulness in Sensory Cortex
 
 * Abstract
 
-Despite the large body of experimental work highlighting the critical role of state-dependent computations in the awake sensory cortex, a theoretical framework providing a mechanistic and functional description of this phenomenon is still lacking. The present study builds a minimal spiking network model of a local cortical assembly and examines its dynamical and computational properties. It is first shown that a weak intrinsic rhythmicity coupled with competing inhibitory and disinhibitory circuits allow recurrent spiking networks to generate the set of dynamical regimes known as the “U-model” of cortical states: the regimes observed at various arousal levels in rodent sensory cortices. We then test the functional specificity of such network states in two vision-inspired tasks. In a natural scene discrimination task, the network encoding is found to be optimal (high-reliability) when displaying the sparse activity regime associated to intermediate arousal levels. In a low contrast detection task, the network is optimally detecting (highly-sensitive) when displaying the high-sensitivity dense activity regime found at high arousal levels. Finally, the model proposes a functional role for the rhythmic activity characterizing the idling cortex, it insures unambiguous transitions between the high-reliability and high-sensitivity modes of cortical activity. 
-This theoretical model suggests that cortical networks implement an adaptive 
-strategy to reliably switch between high-reliability and high-sensitivity modes and therefore modulate perception in a context-dependent manner.
-This theoretical work demonstrates that spike-based interactions in recurrent networks allow to implement a reliable switch between high-reliability and high-sensitivity modes of signal processing. This suggests that this principle is the key functional constraint governing cortical operation in the awake cortex.
+Despite the large body of experimental work highlighting the critical role of state-dependent computations in the awake sensory cortex, a theoretical framework providing a mechanistic and functional description of this phenomenon is still lacking. The present study builds a minimal spiking network model of a local cortical assembly and examines its dynamical and computational properties. It is first shown that a weak intrinsic rhythmicity coupled with competing inhibitory and disinhibitory circuits allow recurrent spiking networks to generate the set of dynamical regimes known as the “U-model” of cortical states: the regimes observed at various arousal levels in rodent sensory cortices. We then test the functional specificity of such network states in two vision-inspired tasks. In a natural scene discrimination task, the network encoding is found to be optimal (high-reliability) when displaying the sparse activity regime associated to intermediate arousal levels. In a low contrast detection task, the network is optimally detecting (highly-sensitive) when displaying the high-sensitivity dense activity regime found at high arousal levels. Finally, the rhythmic activity characterizing the idling cortex is shown to insure unambiguous transitions between the high-reliability and high-sensitivity modes of cortical activity, thus giving it a a functional role. This theoretical model suggests that cortical networks implement an adaptive strategy to reliably switch between high-reliability and high-sensitivity modes and therefore modulate perception in a context-dependent manner.
 
-* Main text
+* Main Text
 *** Intro
+
+The variability in information processing is a puzzling aspect of the computation performed by sensory cortices. Unlike artificial intelligent systems that perform stable transformations of incoming signals, the cortical representations of sensory features are highly variable across . 
+
+A striking feature of information processing in the sensory cortex of awake animals 
+
+
 A puzzling aspect of cortical processing is its, unlike artificial intelligence systems relying on 
 
 Over the last three decades, in vivo physiology has clearly established that the modulation of signal processing by the internal brain dynamics is a hallmark of cortical function (Arieli et al., 1996).
-Since the early/seminal evidence that the ongoing dynamics of neural activity was critically shaping cortical computations [1], much effort has been devoted to the understanding of the functional role of such a phenomenon. Recent research in awake rodents has highlighted the correlation between behavioral and physiological states and specific network regimes in neocortex [2,3]. Such findings thus led to the idea that the regimes of cortical activity are the substrate underlying the functional flexibility 
+Since the early/seminal evidence that the ongoing dynamics of neural activity was critically shaping cortical computations [1], much effort has been devoted to the understanding of the functional role of such a phenomenon. Recent research in awake rodents has highlighted the correlation between behavioral and physiological states and specific network regimes in neocortex [2,3]. Such findings thus led to the idea that the regimes of cortical activity are the substrate underlying the functional flexibility (Cardin, 2019; McGinley et al., 2015b).
 In this paper, we tackle this question with theoretical modeling of spiking network dynamics to focus our investigation on spike-based computation.
 
 Recent investigation in the cortex of awake rodents have made this 
@@ -276,17 +270,130 @@ none & 0 & 0 & 0 & 0\\
 \end{tabular}
 \end{center}
 
-* Supplementary Figures
+* Supplementary
+
+** Supplementary Figures
 
 *** Transfer function determination. 
 #+options : {'label':'tf', 'extent':'singlecolumn', 'file':'figures/tf.png'}
 (a) Example simulation of single cell activity with the simulated presynaptic spikes and resulting synaptic currents and $V_m$ fluctuations.
 (b) Resulting transfer function and its analytical fit.
 
+* Informations
+
+*** Authors
+Yann Zerlaut{1,2}
+*** Short_Title
+A spiking network model for the modulation of sensation
+*** Short_Authors
+Y. Zerlaut
+*** Affiliations
+{1} ICM, Brain and Spine Institute, Hôpital de la Pitié-Salpêtrière, Sorbonne Université, Inserm, CNRS, Paris, France. {2} Neuroinformatics group, Centre National de la Recherche Scientifique, Gif sur Yvette France.
+*** Correspondence
+yann.zerlaut@cnrs.fr
+*** Keywords
+spiking network model, cortical states, wakefulness, neural coding
+*** Acknowledgements
+I thank Andrew Davison, Nelson Rebola and Alberto Bacci for support and discussions. I thank [...] for feedback on the manuscript.
+*** Funding
+This research was supported by a postdoctoral fellowship from the Fondation pour la Recherche Médicale (No ARF201909009117). This project has received funding from the European Union’s Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No 892175 (InProSMod).
+*** Data_Availability 
+The integrality of the simulations and analysis of the main and supplementary material are publicly available at the following address: https://github.com/yzerlaut/spkNtwk-cortStatesWakefulness/
+*** Conflict_Of_Interest
+The author declares no conflict of interest.
+
+* References
+
+@Article{Cardin_2019,
+  author          = {Cardin, Jessica A.},
+  journal         = {Current opinion in neurobiology},
+  title           = {Functional flexibility in cortical circuits.},
+  year            = {2019},
+  issn            = {1873-6882},
+  month           = oct,
+  pages           = {175--180},
+  volume          = {58},
+  citation-subset = {IM},
+  completed       = {2020-02-11},
+  country         = {England},
+  doi             = {10.1016/j.conb.2019.09.008},
+  issn-linking    = {0959-4388},
+  keywords        = {Interneurons},
+  mid             = {NIHMS1543446},
+  nlm-id          = {9111376},
+  owner           = {NLM},
+  pii             = {S0959-4388(19)30040-6},
+  pmc             = {PMC6981226},
+  pmid            = {31585330},
+  pubmodel        = {Print-Electronic},
+  pubstate        = {ppublish},
+  revised         = {2020-02-11},
+}
+
+
+@Article{McGinley_et_al_2015a,
+  author    = {McGinley, Matthew J and David, Stephen V and McCormick, David A},
+  title     = {Cortical membrane potential signature of optimal states for sensory signal detection},
+  journal   = {Neuron},
+  year      = {2015},
+  volume    = {87},
+  number    = {1},
+  pages     = {179--192},
+  doi       = {10.1016/j.neuron.2015.05.038},
+  file      = {:mcginley2015cortical.pdf:PDF},
+  publisher = {Elsevier},
+}
+
+@Article{McGinley_et_al_2015b,
+  author    = {McGinley, Matthew J and Vinck, Martin and Reimer, Jacob and Batista-Brito, Renata and Zagha, Edward and Cadwell, Cathryn R and Tolias, Andreas S and Cardin, Jessica A and McCormick, David A},
+  title     = {Waking state: rapid variations modulate neural and behavioral responses},
+  journal   = {Neuron},
+  year      = {2015},
+  volume    = {87},
+  number    = {6},
+  pages     = {1143--1161},
+  doi       = {10.1016/j.neuron.2015.09.012},
+  file      = {:mcginley2015waking.pdf:PDF},
+  publisher = {Elsevier},
+}
+
 * Other
 
-** Long abstract
+** Pieces of abstract
 
-Despite the large body of experimental work highlighting the critical role of state-dependent computations in the awake cortex, a theoretical framework providing a mechanistic and functional description of this phenomenon is still lacking. The present study builds a minimal spiking network model of a local cortical assembly and examines its dynamical and computational properties. It is first shown that a weak intrinsic rhythmicity coupled with competing inhibitory and disinhibitory circuits allow recurrent spiking networks to generate the set of dynamical regimes known as the “U-model” of cortical states: the regimes observed at various arousal levels in rodent sensory cortices. We then test the functional specificity of such network states in two vision-inspired tasks. In a natural scene discrimination task, the network encoding is found to be optimal (high-reliability) when displaying the sparse activity regime associated to intermediate arousal levels. In a low contrast detection task, the network is optimally detecting (highly-sensitive) when displaying the high-sensitivity dense activity regime found at high arousal levels. Finally, the model proposes a functional role for the rhythmic activity characterizing the idling cortex, it insures unambiguous transitions between the high-reliability and high-sensitivity modes of cortical activity. This theoretical analysis suggests that the key functional constraint governing cortical dynamics and function is the switch between high-reliablity and high-sensitivity modes of recurrent dynamics and 
-demonstrates that spike-based interactions in recurrent networks allow to implement a switch between high-reliability and high-sensitivity modes of recurrent and suggests that 
-such strategy.
+Despite the large body of experimental work highlighting the critical
+role of state-dependent computations in the awake cortex, a
+theoretical framework providing a mechanistic and functional
+description of this phenomenon is still lacking. The present study
+builds a minimal spiking network model of a local cortical assembly
+and examines its dynamical and computational properties. It is first
+shown that a weak intrinsic rhythmicity coupled with competing
+inhibitory and disinhibitory circuits allow recurrent spiking networks
+to generate the set of dynamical regimes known as the “U-model” of
+cortical states: the regimes observed at various arousal levels in
+rodent sensory cortices. We then test the functional specificity of
+such network states in two vision-inspired tasks. In a natural scene
+discrimination task, the network encoding is found to be optimal
+(high-reliability) when displaying the sparse activity regime
+associated to intermediate arousal levels. In a low contrast detection
+task, the network is optimally detecting (highly-sensitive) when
+displaying the high-sensitivity dense activity regime found at high
+arousal levels. Finally, the model proposes a functional role for the
+rhythmic activity characterizing the idling cortex, it insures
+unambiguous transitions between the high-reliability and
+high-sensitivity modes of cortical activity. This theoretical analysis
+suggests that the key functional constraint governing cortical
+dynamics and function is the switch between high-reliablity and
+high-sensitivity modes of recurrent dynamics and demonstrates that
+spike-based interactions in recurrent networks allow to implement a
+switch between high-reliability and high-sensitivity modes of
+recurrent and suggests that such strategy.
+
+
+This theoretical work demonstrates that spike-based interactions in
+recurrent networks allow to implement a reliable switch between
+high-reliability and high-sensitivity modes of signal processing. This
+suggests that this principle is the key functional constraint
+governing cortical operation in the awake cortex.
+
+** Pieces of text
