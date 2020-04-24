@@ -23,13 +23,16 @@ def build_initial_grid(REC_POPS, AFF_POPS,
         GRID0[i,j,:] = np.array(INITIAL_LIMS[i])
     return GRID0
 
-def translate_SynapseMatrix_into_connectivity_proba(Matrix, Model):
+def translate_SynapseMatrix_into_connectivity_proba(Matrix, Model, verbose=False):
     """
     Sets the "Matrix" as the connectivity proba in "Model"
     """
     for i, source_pop in enumerate(list(Model['REC_POPS'])+list(Model['AFF_POPS'])):
         for j, target_pop in enumerate(list(Model['REC_POPS'])):
             Model['p_%s_%s' % (source_pop, target_pop)] = Matrix[i,j]/Model['N_%s' % source_pop]
+            if verbose:
+                print("Model['p_%s_%s'] = %.3f" % (source_pop, target_pop,
+                                                   Matrix[i,j]/Model['N_%s' % source_pop]))
 
 def reshape_SynapseMatrix_into_ConnecMatrix(Matrix, Model):
     """
@@ -419,6 +422,7 @@ if __name__=='__main__':
         Umodel_data = {'t':1e3*results['t'], 'desired_Vm':results['desired_Vm']}
         for i in results['i_sorted_residuals'][:args.Nbest]:
             print(i, results['residuals'][i])
+            print(results['configs'][i])
             
             fn = results['associated_ntwk_sim_filename'][i]
             if os.path.isfile(fn):

@@ -83,23 +83,30 @@ class Umodel:
     def illustration(self, graph, ax=None):
 
         if ax is None:
-            fig, ax = graph.figure(left=.7, bottom=.7)
+            fig, ax = graph.figure()
         else:
             fig = None
 
         F = np.linspace(self.min_Fmodul_in_Hz, self.max_Fmodul_in_Hz)
 
         COLORS = ['darkgreen', 'darkblue', 'firebrick']
-        ax.plot(F, self.compute_asynch_Vm(F)+.5*self.compute_delta_Vm(F),
-                COLORS[0], lw=3)
-        ge.annotate(ax, r'$\langle V_m \rangle_{1s}^{pyr}$',
+        
+        ge.plot(F, self.compute_asynch_Vm(F)+.5*self.compute_delta_Vm(F),
+                sy=.5*self.compute_delta_Vm(F)+0*F,
+                color=COLORS[0], lw=2, ax=ax)
+        # ax.plot(F, self.compute_asynch_Vm(F)+.5*self.compute_delta_Vm(F),
+        #         COLORS[0], lw=2)
+        
+        # ge.annotate(ax, r'$\langle V_m \rangle_{1s}^{pyr}$',
+        # ge.annotate(ax, r'$\mu_{Vm}^{pyr} \pm \sigma_{Vm}^{pyr}$',
+        ge.annotate(ax, r'$\mu \pm \sigma$',
                     (.42,.45), color=COLORS[0], size='large')
         
-        ax.plot(F, self.compute_delta_Vm(F), color=COLORS[1], lw=3)
+        ax.plot(F, self.compute_delta_Vm(F), color=COLORS[1], lw=2)
         ge.annotate(ax, '$\delta_{env}^{pyr}$',
                     (0.1,.65), color=COLORS[1], size='large')
         
-        ax.plot(F, self.compute_gamma_Vm(F), color=COLORS[2], lw=3)
+        ax.plot(F, self.compute_gamma_Vm(F), color=COLORS[2], lw=2)
         ge.annotate(ax, '$\\gamma_{env}^{pyr}$',
                     (1.1,.3), color=COLORS[2], ha='right', size='large')
         
@@ -116,7 +123,7 @@ class Umodel:
 if __name__=='__main__':
 
     um = Umodel()
-    ge = graph_env()
+    from datavyz import ge
     
     fig,_ = um.illustration(ge)
 

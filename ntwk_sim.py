@@ -144,11 +144,13 @@ def plot_sim(filename, ge,
 
         mf = ntwk.FastMeanField(data, tstop=6., dt=2.5e-3, tau=20e-3)
         mf.build_TF_func(tf_sim_file='neural_network_dynamics/theory/tf_sim_points.npz')
-        X, Vm = mf.run_single_connectivity_sim(mf.ecMatrix, verbose=True)
+        X, mVm, sVm = mf.run_single_connectivity_sim(mf.ecMatrix, verbose=True)
         t = np.linspace(0, data['tstop'], X.shape[1])
         for i, label in enumerate(data['REC_POPS']):
             AX[-1].plot(t, 1e-2+X[i,:], '--', lw=1, color=COLORS[i])
-            AX[2+i].plot(t, 1e3*Vm[i,:], 'k-', lw=1, label='mean-field')
+            ge.plot(t, 1e3*mVm[i,:], sy=1e3*sVm[i,:], color='k', lw=1, label='mean-field', ax=AX[2+i])
+            AX[2+i].plot(t, 1e3*(mVm[i,:]-sVm[i,:]), 'k-', lw=0.5)
+            AX[2+i].plot(t, 1e3*(mVm[i,:]+sVm[i,:]), 'k-', lw=0.5)
         # AX[2].plot(mf_data['t'], mf_data['desired_Vm'], 'k--', lw=2, label='U-model')
         # AX[2].legend(frameon=False, loc='best')
 
@@ -170,7 +172,7 @@ def plot_sim(filename, ge,
     # ge.show()
     
 
-def plot_matrix(Model):
+def plot_matrix(Model, ge=None):
 
     REC_POPS, AFF_POPS = list(Model['REC_POPS']), list(Model['AFF_POPS'])
 
@@ -179,7 +181,10 @@ def plot_matrix(Model):
     for i, source_pop in enumerate(REC_POPS+AFF_POPS):
         for j, target_pop in enumerate(REC_POPS):
             pconnMatrix[i,j] = Model['p_%s_%s' % (source_pop, target_pop)]
-    
+
+    if ge is None:
+        from datavyz import ge
+        
     fig, ax = ge.figure(right=5.)
     
     Lims = [np.round(100*pconnMatrix.min(),1)-.1,np.round(100*pconnMatrix.max(),1)+.1]
