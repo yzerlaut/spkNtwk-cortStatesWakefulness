@@ -9,6 +9,7 @@ This feature might be one of the defining principle of sensory perception during
  underlying the context-dependent modulation of perception is to implement an adaptive strategy to reliably switch between high-reliability and high-sensitivity modes and therefore .
 
 * Main Text
+  
 *** Intro
 
 The variable nature of information transmission in neuronal networks is a puzzling aspect of the computation performed by sensory cortices. Indeed, unlike artificial intelligent systems that extract information by fixed transformations of incoming signals, the cortical representations of sensory features are highly variable across repeated presentations of a given stimulus (REFS). 
@@ -16,6 +17,7 @@ The variable nature of information transmission in neuronal networks is a puzzli
 A striking feature of information processing in the sensory cortex of awake animals 
 
 Over the last three decades, in vivo physiology has clearly established that the modulation of signal processing by the internal brain dynamics is a hallmark of cortical function (Arieli et al., 1996).
+
 Since the early/seminal evidence that the ongoing dynamics of neural activity was critically shaping cortical computations [1], much effort has been devoted to the understanding of the functional role of such a phenomenon. Recent research in awake rodents has highlighted the correlation between behavioral and physiological states and specific network regimes in neocortex [2,3]. Such findings thus led to the idea that the regimes of cortical activity are the substrate underlying the functional flexibility (Cardin, 2019; McGinley et al., 2015b).
 In this paper, we tackle this question with theoretical modeling of spiking network dynamics to focus our investigation on spike-based computation.
 
