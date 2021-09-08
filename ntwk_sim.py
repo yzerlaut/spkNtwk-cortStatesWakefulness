@@ -10,7 +10,7 @@ from analyz.IO.npz import load_dict
 # from Umodel import Umodel
 
 from datavyz import ge
-COLORS=[ge.g, ge.b, ge.r, ge.purple, 'k', 'dimgrey']
+COLORS=[ge.green, ge.blue, ge.red, ge.purple, 'k', 'dimgrey']
 
 
 #######################################
@@ -189,7 +189,8 @@ def plot_matrix(Model, ge=None):
     
     Lims = [np.round(100*pconnMatrix.min(),1)-.1,np.round(100*pconnMatrix.max(),1)+.1]
     
-    ge.matrix(100*pconnMatrix.T, origin='upper', ax=ax, vmin=Lims[0], vmax=Lims[1])
+    ge.matrix(100*pconnMatrix.T, origin='upper',
+              ax=ax, vmin=Lims[0], vmax=Lims[1])
 
 
     n, m = len(REC_POPS)+len(AFF_POPS), len(REC_POPS)
