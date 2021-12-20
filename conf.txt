@@ -1,4 +1,4 @@
-#+Title: Network dynamics modulations enable flexible computations across waking states in sensory cortex
+#+Title: Network dynamics modulation enables flexible computations across waking states in sensory cortex
 
 * Abstract
 
@@ -285,7 +285,7 @@ none & 0 & 0 & 0 & 0\\
 * Informations
 
 *** Authors
-Yann Zerlaut{1,*}, Marcel Van Velze{1}, Alberto Bacci{1}, Nelson Rebola{1}
+Y. Zerlaut{1,*}, M. Van Velze{1}, A. Bacci{1}, N. Rebola{1}
 
 *** Short_Title
 Flexible computation in sensory networks
