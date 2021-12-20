@@ -2,17 +2,30 @@
 
 * Abstract
 
-Despite the large amount of experimental evidence highlighting the critical role of state-dependent computations in the awake sensory cortex, a theoretical framework providing a mechanistic and functional description of this phenomenon is still lacking. The present work builds a minimal spiking network model reproducing the cortical states of wakefulness across varying arousal levels and test the functional specificity of those network states in two vision-inspired tasks. In a natural scene discrimination task, the network encoding is found to be optimal (highly-reliable) when displaying the sparse activity regime associated to intermediate arousal levels. In a low contrast detection task, the network is found optimal (highly-sensitive) when displaying the dense activity regime found at high arousal levels. This theoretical model demonstrates a key function of spiking networks: they can implement an unambiguous switch between high-reliability and high-sensitivity modes. 
+The variable nature of information transmission in neuronal networks is a puzzling aspect of sensory processing in awake behaving animals. Unlike artificial-intelligence systems that extract information by fixed transformations of incoming signals, the cortical representations of a given sensory stimulus can be highly variable across repetitions. In particular the behavioral and physiological state of the animal (e.g. arousal) has been shown to massively impact the cortical representations of sensory features. Sensory processing thus appears to be adaptable, a change in the animal's internal state will lead to different perceptual outcomes for the same sensory scene. Despite the large amount of experimental data highlighting the critical role of state-dependent computations in the awake cortex, a theoretical framework providing a mechanistic and functional description of this phenomenon in neuronal networks is still lacking. 
+
+In the present work, we build a minimal spiking network model reproducing the cortical states of
+wakefulness across varying arousal levels and we test the functional specificity of those network states in two vision-inspired tasks. In a natural scene discrimination task, the network encoding is found to be optimal (highly-reliable) when displaying the sparse activity regime associated with intermediate arousal levels. In a low contrast cue-appearance detection task, the network is found optimal (highly-sensitive) when displaying the dense activity regime found at high arousal levels. We confirm those predictions using visual stimulation and calcium imaging of large neuronal populations in the primary visual cortex of awake behaving mice.
+
+This theoretical model demonstrates a key function of spiking networks: they can implement an unambiguous switch between high-reliability and high-sensitivity modes.
+
+ underlying the context-dependent modulation of perception is to implement an adaptive strategy to reliably switch between high-reliability and high-sensitivity modes and therefore .
+
+The present work provides the theoretical foundations to understand 
+in a time-varying setting where different context necesit should lead to different perceptual outcomes.
+We propose that this
+
+and enable the design of new artifically-intelligent systems where feature extraction needs to be adaptable according to a specific environmental context.
 
 This feature might be one of the defining principle of sensory perception during active behavior.
 
- underlying the context-dependent modulation of perception is to implement an adaptive strategy to reliably switch between high-reliability and high-sensitivity modes and therefore .
+
+This work 
 
 * Main Text
   
 *** Intro
 
-The variable nature of information transmission in neuronal networks is a puzzling aspect of the computation performed by sensory cortices. Indeed, unlike artificial intelligent systems that extract information by fixed transformations of incoming signals, the cortical representations of sensory features are highly variable across repeated presentations of a given stimulus (REFS). 
 
 A striking feature of information processing in the sensory cortex of awake animals 
 
