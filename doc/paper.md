@@ -1,42 +1,22 @@
-#+Title: Spiking dynamics modulation enables flexible sensory processing across waking states in cortical networks
+#+Title: Adaptable spiking dynamics enables flexible computations across waking states in sensory cortex
 
 * Abstract
 
-The variable nature of information transmission in neuronal networks is a puzzling aspect of sensory processing in awake behaving animals. Unlike artificial-intelligence systems that rely on fixed transformations of incoming signals, the cortical representations of a given sensory stimulus can be highly variable across repetitions. In particular the behavioral and physiological state of the animal (e.g. arousal) has been shown to massively impact the cortical representations of sensory features. Sensory processing thus appears to be adaptable across waking states, a change in the animal's internal state will lead to different perceptual outcomes for the same sensory scene. Despite the large amount of experimental data highlighting the critical role of state-dependent computations in the awake cortex, a theoretical framework providing a mechanistic and functional description of this phenomenon in neuronal networks is still lacking. 
+Despite the large amount of experimental evidence highlighting the critical role of state-dependent computations in the awake sensory cortex, a theoretical framework providing a mechanistic and functional description of this phenomenon is still lacking. The present study builds a minimal spiking network model of a local cortical assembly and examines its dynamical and computational properties (and compares ... with neurophysiological recordings in the awake behaving mouse). It is first shown that a weak intrinsic rhythmicity coupled with competing inhibitory and disinhibitory circuits allow recurrent spiking networks to generate the set of dynamical regimes observed at various arousal levels in rodent sensory cortices (also known as the “U-model” of cortical states). We then test the functional specificity of such network states in two vision-inspired tasks. In a natural scene discrimination task, the network encoding is found to be optimal (highly-reliable) when displaying the sparse activity regime associated to intermediate arousal levels. In a low contrast detection task, the network is optimally detecting (high-sensitivity) when displaying the dense activity regime found at high arousal levels. Finally, the rhythmic activity characterizing the idling cortex is shown to insure unambiguous transitions between the high-reliability and high-sensitivity modes of cortical activity, thus giving it a a functional role. This theoretical model therefore demonstrates a key function of spiking networks: they can implement an unambiguous switch between high-reliability and high-sensitivity modes. 
 
-In the present work, we build a minimal spiking network model reproducing the cortical states of wakefulness across varying arousal levels and we test the functional specificity of such network states in two vision-inspired tasks. In a natural scene discrimination task, the network encoding is found to be optimal when displaying the sparse activity regime associated with intermediate arousal levels. In a low contrast cue-appearance detection task, the network is found optimal when displaying the dense activity regime found at high arousal levels.
-
- (highly-reliable across repetitions)
-
- 
-We will present preliminary data confirm those predictions using visual stimulation and calcium imaging of large neuronal populations in the primary visual cortex of awake behaving mice.
-
-This theoretical model demonstrates a key function of spiking networks: they can implement an unambiguous switch between high-reliability and high-sensitivity modes.
-
-The present theoretical picture paves the way 
-proposes that the rich emergent dynamics of spiking networks gives cortical assemblies the ability to shift computational mode
+This feature might be one of the defining principle of sensory perception during active 
 
  underlying the context-dependent modulation of perception is to implement an adaptive strategy to reliably switch between high-reliability and high-sensitivity modes and therefore .
-
-The present work provides the theoretical foundations to understand 
-in a time-varying setting where different context necesit should lead to different perceptual outcomes.
-We propose that this
-
-and enable the design of new artifically-intelligent systems where feature extraction needs to be adaptable according to a specific environmental context.
-
-This feature might be one of the defining principle of sensory perception during active behavior.
-
-
-This work 
 
 * Main Text
   
 *** Intro
 
+The variable nature of information transmission in neuronal networks is a puzzling aspect of the computation performed by sensory cortices. Indeed, unlike artificial intelligent systems that extract information by fixed transformations of incoming signals, the cortical representations of sensory features are highly variable across repeated presentations of a given stimulus (REFS). 
 
 A striking feature of information processing in the sensory cortex of awake animals 
 
-Over the last three decades, in vivo physiology has clearly established that the modulation of sensory processing by the internal brain dynamics is a hallmark of cortical function (Arieli et al., 1996).
+Over the last three decades, in vivo physiology has clearly established that the modulation of signal processing by the internal brain dynamics is a hallmark of cortical function (Arieli et al., 1996).
 
 Since the early/seminal evidence that the ongoing dynamics of neural activity was critically shaping cortical computations [1], much effort has been devoted to the understanding of the functional role of such a phenomenon. Recent research in awake rodents has highlighted the correlation between behavioral and physiological states and specific network regimes in neocortex [2,3]. Such findings thus led to the idea that the regimes of cortical activity are the substrate underlying the functional flexibility (Cardin, 2019; McGinley et al., 2015b).
 In this paper, we tackle this question with theoretical modeling of spiking network dynamics to focus our investigation on spike-based computation.
@@ -229,7 +209,7 @@ playing with some reference here (Destexhe et al., 2003)
 (d) Resulting connectivity matrix.
 (e) Network dynamics.
 
-*** Flexible network computation in two vision-inspired tasks.
+*** Testing network function in two vision-inspired tasks.
 #+options : {'label':'Fig3', 'extent':'doublecolumn', 'wrapfig':True, 'width':.52, 'height':9, 'hrule_bottom':True, 'file':os.path.expanduser("~")+'/work/graphs/output/fig.png'}
 (a) A phenomenological model of the visual system up to V1 now feeds the local cortical model based on a screen content. This model  
 (b) Praesentlectus tellus, aliquet aliquam, luctus a, egestas a,turpis. Mauris lacinia lorem sit amet ipsum. 
@@ -305,25 +285,19 @@ none & 0 & 0 & 0 & 0\\
 * Informations
 
 *** Authors
-Y. Zerlaut{1,*}, M. Van Velze{1}, A. Bacci{1}, N. Rebola{1}
-
+Yann Zerlaut{1,2}
 *** Short_Title
-Flexible computation in sensory networks
-
+A spiking network model for the modulation of sensation
 *** Short_Authors
-Y. Zerlaut, M. Van Velze, A. Bacci, N. Rebola
-
+Y. Zerlaut
 *** Affiliations
-{1} ICM, Brain and Spine Institute, Hôpital de la Pitié-Salpêtrière, Sorbonne Université, Inserm, CNRS, Paris, France.
-
+{1} ICM, Brain and Spine Institute, Hôpital de la Pitié-Salpêtrière, Sorbonne Université, Inserm, CNRS, Paris, France. {2} Neuroinformatics group, Centre National de la Recherche Scientifique, Gif sur Yvette France.
 *** Correspondence
-yann.zerlaut@icm-institute.org
-
+yann.zerlaut@cnrs.fr
 *** Keywords
 spiking network model, cortical states, wakefulness, neural coding
 *** Acknowledgements
-Research supported by [...]
-
+I thank Andrew Davison, Nelson Rebola and Alberto Bacci for support and discussions. I thank [...] for feedback on the manuscript.
 *** Funding
 This research was supported by a postdoctoral fellowship from the Fondation pour la Recherche Médicale (No ARF201909009117). This project has received funding from the European Union’s Horizon 2020 research and innovation programme under the Marie Skłodowska-Curie grant agreement No 892175 (InProSMod).
 *** Data_Availability 
@@ -431,21 +405,3 @@ governing cortical operation in the awake cortex.
 - Adaptable/Shifting spiking dynamics enables flexible computation across waking states in sensory cortex
 - Spiking network dynamics enables flexible computation across waking states in sensory cortex
 - A Spiking Network Model for the Modulation of Cortical Dynamics and Function during Wakefulness in Sensory Cortex
-
-
-
-
-=============================
-===== Pieces of text =============
-
-The present work provides the theoretical foundations to understand
-
-Different perceptual outcomes for the same sensory scene
-
-The critical role of state-dependent computations in the awake cortex
-
-in a time-varying setting where different context should lead to different perceptual outcomes.
-
-This enables the design of new artifically-intelligent systems where feature extraction needs to be adaptable according to a specific environmental context.
-
-This feature might be one of the defining principle of sensory perception during active behavior.
