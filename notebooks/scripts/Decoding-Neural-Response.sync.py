@@ -40,6 +40,8 @@ from datavyz import ge
 # %%
 root_datafolder = os.path.join(os.path.expanduser('~'), 'DATA', 'curated')
 filename = '2022_06_13-14-17-33.nwb'
+root_datafolder = os.path.join(os.path.expanduser('~'), 'DATA', '6juil')
+filename = '2022_07_06-14-31-07.nwb'
 data = Data(os.path.join(root_datafolder, filename))
 print(data.protocols)
 
@@ -48,7 +50,7 @@ print(data.protocols)
 
 # %%
 episodes_NI = EpisodeResponse(os.path.join(root_datafolder, filename), 
-                              protocol_id=data.get_protocol_id('NI-VSE-3images-2vse-30trials'),
+                              protocol_id=1,#data.get_protocol_id('NI-VSE-3images-2vse-30trials'),
                               quantities=['dFoF', 'Pupil', 'Running-Speed'],
                               dt_sampling=30, # ms, to avoid to consume to much memory
                               verbose=True, prestim_duration=1.5)
@@ -62,35 +64,12 @@ print('varied parameters:', episodes_NI.varied_parameters)
 # %%
 episodes_GB = EpisodeResponse(os.path.join(root_datafolder, filename), 
                               quantities=['dFoF', 'Pupil', 'Running-Speed'],
-                              protocol_id=data.get_protocol_id('gaussian-blobs'),
+                              protocol_id=0,#data.get_protocol_id('gaussian-blobs'),
                               dt_sampling=30, # ms, to avoid to consume to much memory
                               verbose=True, prestim_duration=1.5)
 
 print('episodes_GB:', episodes_GB.protocol_name)
 print('varied parameters:', episodes_GB.varied_parameters)
-
-# %% [markdown]
-# ### Behavior
-
-# %%
-fig, AX = ge.figure(axes=(2,1), figsize=(1.2,1.5), wspace=1.5)
-
-threshold = 0.15 # cm/s
-
-for ax, EPISODES, title in zip(AX, [episodes_NI, episodes_GB],
-                               ['NI episodes', 'GB episodes']):
-    running = np.mean(EPISODES.RunningSpeed, axis=1)>threshold
-
-    ge.scatter(np.mean(EPISODES.pupilSize, axis=1)[running], 
-               np.mean(EPISODES.RunningSpeed, axis=1)[running],
-               ax=ax, no_set=True, color=ge.blue, ms=5)
-    ge.scatter(np.mean(EPISODES.pupilSize, axis=1)[~running], 
-               np.mean(EPISODES.RunningSpeed, axis=1)[~running],
-               ax=ax, no_set=True, color=ge.orange, ms=5)
-    ge.set_plot(ax, xlabel='pupil size (mm)', ylabel='run. speed (cm/s)', title=title)
-    ax.plot(ax.get_xlim(), threshold*np.ones(2), 'k--', lw=0.5)
-    ge.annotate(ax, 'n=%i' % np.sum(running), (0,1), va='top', color=ge.blue)
-    ge.annotate(ax, '\nn=%i' % np.sum(~running), (0,1), va='top', color=ge.orange)
 
 
 # %% [markdown]
@@ -150,11 +129,15 @@ show_stim_evoked_resp(episodes_NI, 'Image-ID', 1);
 show_stim_evoked_resp(episodes_NI, 'Image-ID', 2);
 
 # %%
+show_stim_evoked_resp(episodes_GB, 'contrast', 4, 
+                      quantity='dFoF', with_stim_inset=False);
+
+# %%
 show_stim_evoked_resp(episodes_GB, 'center-time', 0, 
                       quantity='dFoF', with_stim_inset=False);
-show_stim_evoked_resp(episodes_GB, 'center-time', 2, 
+show_stim_evoked_resp(episodes_GB, 'center-time', 1, 
                       quantity='dFoF', with_stim_inset=False);
-show_stim_evoked_resp(episodes_GB, 'center-time', 4, 
+show_stim_evoked_resp(episodes_GB, 'center-time', 2, 
                       quantity='dFoF', with_stim_inset=False);
 
 # %% [markdown]
@@ -190,8 +173,95 @@ accuracies_GB = [run_model(episodes_GB,
 fig, ax = ge.bar([100*np.mean(accuracies_NI), 100*np.mean(accuracies_GB)],
                  sy=[100*np.std(accuracies_NI), 100*np.std(accuracies_GB)])
 ge.set_plot(ax, ylabel='neurometric task\naccuracy (%)', xticks=[0,1], 
-            xticks_labels=['NI-identification', 'Cue-detection'],
+            xticks_labels=['NI-discrimination', 'Cue-detection'],
+            title='all trials',
             yticks=[0,50,100],
             xticks_rotation=30)
+ax.plot([-0.5,1.5], 1./6.*100*np.ones(2), 'k--', lw=0.5)
+ge.annotate(ax, 'chance level', (1,0))
+
+# %% [markdown]
+# ## Behavior
+
+# %%
+fig, AX = ge.figure(axes=(2,1), figsize=(1.2,1.5), wspace=1.5)
+
+threshold = 0.1 # cm/s
+
+for ax, EPISODES, title in zip(AX, [episodes_NI, episodes_GB],
+                               ['NI episodes', 'GB episodes']):
+    running = np.mean(EPISODES.RunningSpeed, axis=1)>threshold
+
+    ge.scatter(np.mean(EPISODES.pupilSize, axis=1)[running], 
+               np.mean(EPISODES.RunningSpeed, axis=1)[running],
+               ax=ax, no_set=True, color=ge.blue, ms=5)
+    ge.scatter(np.mean(EPISODES.pupilSize, axis=1)[~running], 
+               np.mean(EPISODES.RunningSpeed, axis=1)[~running],
+               ax=ax, no_set=True, color=ge.orange, ms=5)
+    ge.set_plot(ax, xlabel='pupil size (mm)', ylabel='run. speed (cm/s)', title=title)
+    ax.plot(ax.get_xlim(), threshold*np.ones(2), 'k--', lw=0.5)
+    ge.annotate(ax, 'n=%i' % np.sum(running), (0,1), va='top', color=ge.blue)
+    ge.annotate(ax, '\nn=%i' % np.sum(~running), (0,1), va='top', color=ge.orange)
+
+# %%
+from sklearn.model_selection import train_test_split
+from sklearn.neighbors import KNeighborsClassifier
+
+def run_model_w_cond(episodes, condition, key, values, seed=1, test_size=0.5):
+    cond_array = np.arange(len(condition))[condition]
+    X_train, X_test, y_train, y_test = train_test_split([episodes.dFoF[i,:,:].flatten() for i in cond_array],
+                                                        values[condition],
+                                                        test_size=test_size, random_state=seed)
+    #print(X_train.shape)
+    nn_model = KNeighborsClassifier(n_neighbors=1, algorithm='brute').fit(X_train, y_train)
+    y_predicted = nn_model.predict(X_test)
+    return np.sum((y_predicted-y_test)==0)/len(y_test)
+
+
+# %%
+
+threshold = 0.1 # cm/s
+
+# NI
+running = np.mean(episodes_NI.RunningSpeed, axis=1)>threshold
+accuracies_NI_run = [run_model_w_cond(episodes_NI, running,
+                                      'Image-ID', 
+                                      getattr(episodes_NI, 'Image-ID'),
+                                      seed=i) for i in range(10)]
+accuracies_NI_still = [run_model_w_cond(episodes_NI, ~running,
+                                      'Image-ID', 
+                                      getattr(episodes_NI, 'Image-ID'),
+                                      seed=i) for i in range(10)]
+
+
+# GB
+running = np.mean(episodes_GB.RunningSpeed, axis=1)>threshold
+accuracies_GB_run = [run_model_w_cond(episodes_GB, running,
+                                      'center-time', 
+                                      np.array(10*getattr(episodes_GB, 'center-time'), dtype=int), 
+                                      seed=i) for i in range(10)]
+accuracies_GB_still = [run_model_w_cond(episodes_GB, ~running,
+                                      'center-time', 
+                                      np.array(10*getattr(episodes_GB, 'center-time'), dtype=int), 
+                                      seed=i) for i in range(10)]
+
+
+
+# %%
+fig, ax = ge.bar([100*np.mean(accuracies_NI_still), 100*np.mean(accuracies_NI_run), 0,
+                  100*np.mean(accuracies_GB_still), 100*np.mean(accuracies_GB_run)],
+                 sy=[100*np.std(accuracies_NI_still), 100*np.std(accuracies_NI_run), 0,
+                     100*np.std(accuracies_GB_still), 100*np.std(accuracies_GB_run)],
+                 COLORS=[ge.orange, ge.blue, 'k', ge.orange, ge.blue])
+
+ge.set_plot(ax, ylabel='neurometric task\naccuracy (%)', xticks=[0,1,3,4], 
+            xticks_labels=['NI-discrimination', '', '', 'Cue-detection'],
+            yticks=[0,50,100],
+            xticks_rotation=30)
+
+ge.annotate(ax, 'still trials', (1,1), va='top', color=ge.orange, bold=True)
+ge.annotate(ax, '\nrun trials', (1,1), va='top', color=ge.blue, bold=True)
+ax.plot([-0.5,4.5], 1./6.*100*np.ones(2), 'k--', lw=0.5)
+
 
 # %%
