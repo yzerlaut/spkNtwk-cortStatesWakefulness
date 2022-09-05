@@ -35,7 +35,7 @@ ge = graph_env('notebook')
 
 # adding a function to find responsive rois in those datafiles
 def find_responsive_rois(episodes, stim_keys, stim_indices, ROI_SUMMARIES,
-                         value_threshold=0.5,
+                         value_threshold=0.25,
                          significance_threshold=0.01):
     
 
@@ -56,6 +56,7 @@ def find_responsive_rois(episodes, stim_keys, stim_indices, ROI_SUMMARIES,
 # %%
 root_datafolder = os.path.join(os.path.expanduser('~'), 'DATA', 'curated')
 filename = '2022_03_01-15-25-17.nwb'
+filename = '2022_06_08-13-46-47.nwb'
 data = physion.analysis.read_NWB.Data(os.path.join(root_datafolder, filename),
                                       with_visual_stim=True,
                                       verbose=False)
@@ -68,7 +69,7 @@ print(data.protocols)
 data = physion.analysis.read_NWB.Data(os.path.join(root_datafolder, filename))
 
 episodes_GB = physion.analysis.process_NWB.EpisodeResponse(data,
-                                      protocol_id=1,#data.get_protocol_id('NI-VSE-3images-2vse-30trials'),
+                                      protocol_id=data.get_protocol_id('gaussian-blobs'),
                                       quantities=['dFoF', 'Pupil', 'Running-Speed'],
                                       dt_sampling=30, # ms, to avoid to consume to much memory
                                       verbose=True, prestim_duration=1.5)
@@ -92,22 +93,24 @@ ROI_SUMMARIES = [episodes_GB.compute_summary_data(dict(interval_pre=[-episodes_G
                                                        positive=True),
                                                      response_args={'quantity':'dFoF', 
                                                                     'roiIndex':roi},
-                                                   response_significance_threshold=0.01) for roi in range(episodes_GB.dFoF.shape[1])]
+                                                   response_significance_threshold=0.05) for roi in range(episodes_GB.dFoF.shape[1])]
 
 # %%
 fig, AX = ge.figure(axes_extents=[[[1,3] for i in range(3)],
                                   [[1,8] for i in range(3)]],
-                    figsize=(.9,.1), left=1, right=4, top=5, wspace=0.4)
+                    figsize=(.9,.1), left=0.4, right=2, top=13, wspace=1)
 for i in range(3):
     #
     stim_keys, stim_indices = ['center-time', 'radius'], [i,0]
-    responsive_rois = find_responsive_rois(episodes_GB, stim_keys, stim_indices, ROI_SUMMARIES)
-    #
+    stim_keys, stim_indices = ['center-time'], [i]
+    responsive_rois = find_responsive_rois(episodes_GB, stim_keys, stim_indices, ROI_SUMMARIES,
+                                          value_threshold=0.1)
     Episodes_GB.plot_evoked_pattern(Episodes_GB.find_episode_cond(stim_keys, stim_indices),
                                     rois=np.random.choice(responsive_rois, 
                                                        min([10, len(responsive_rois)]), replace=False),
                                     quantity='dFoF',
                                     axR=AX[0][i], axT=AX[1][i])
+ge.save_on_desktop(fig, 'fig.png')
 
 
 # %%
@@ -261,7 +264,7 @@ for decoder in ['single-trial', 'trial-average']:
     fig, _ = computing_NNclassifer_accuracy(Episodes_GB,
                                             decoder='single-trial',
                                             N_set_shuffling=30,
-                                            train_size_per_stim=5)
+                                            train_size_per_stim=3)
     ge.save_on_desktop(fig, 'fig-%s.png' % decoder)
 
 # %% [markdown]
@@ -363,6 +366,7 @@ for f, subject, pid in zip(DATASET['files'][start_index:],
         fig, _ = computing_NNclassifer_accuracy(Episodes,
                                                 decoder=decoder,
                                                 train_size_per_stim=3,
+                                                running_threshold=running_threshold,
                                                 N_set_shuffling=30)
         
         fig.savefig(os.path.join(file_folder, 'NNclassifier-%s.png' % decoder))

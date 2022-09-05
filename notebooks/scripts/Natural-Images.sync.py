@@ -410,9 +410,10 @@ for f, subject, pid in zip(DATASET['files'][start_index:],
         fig, _ = computing_NNclassifer_accuracy(Episodes,
                                                 decoder=decoder,
                                                 train_size_per_stim=5,
+                                                running_threshold=running_threshold,
                                                 N_set_shuffling=30)
         fig.savefig(os.path.join(file_folder, 'NNclassifier-%s.png' % decoder))
         plt.close(fig)
-    
+
 
 # %%
