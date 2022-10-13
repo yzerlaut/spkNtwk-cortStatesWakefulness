@@ -62,7 +62,7 @@ Model = {
     ## ---------------------------------------------------------------------------------
 }
 
-def run_single_sim(Model):
+def run_single_sim(Model, verbose=False):
 
     StimPattern = {'indices':[], 'times':[]}
     Nrecruited = int(Model['STIM-synchrony']*Model['N_AffExcTV'])
@@ -84,9 +84,9 @@ def run_single_sim(Model):
                                   with_Vm=1,
                                   # with_synaptic_currents=True,
                                   # with_synaptic_conductances=True,
-                                  verbose=True)
+                                  verbose=verbose)
 
-    ntwk.build.recurrent_connections(NTWK, SEED=5, verbose=True)
+    ntwk.build.recurrent_connections(NTWK, SEED=5, verbose=verbose)
 
     #######################################
     ########### AFFERENT INPUTS ###########
@@ -97,7 +97,7 @@ def run_single_sim(Model):
     for i, tpop in enumerate(REC_POPS): # both on excitation and inhibition
         ntwk.stim.construct_feedforward_input(NTWK, tpop, 'AffExcBG',
                                               t_array, Model['F_AffExcBG']+0.*t_array,
-                                              verbose=True,
+                                              verbose=verbose,
                                               SEED=int(Model['BG-SEED']))
 
     # build connectivity matrices for the stimulus
@@ -108,7 +108,7 @@ def run_single_sim(Model):
         ntwk.stim.construct_feedforward_input(NTWK, tpop, 'AffExcTV',
                                               t_array, 0.*t_array, # no background aff
                                               additional_spikes_in_terms_of_pre_pop=StimPattern,
-                                              verbose=True,
+                                              verbose=verbose,
                                               SEED=int(Model['STIM-SEED'])+1)
 
     ################################################################
@@ -119,7 +119,7 @@ def run_single_sim(Model):
     #####################
     ## ----- Run ----- ##
     #####################
-    network_sim = ntwk.collect_and_run(NTWK, verbose=True)
+    network_sim = ntwk.collect_and_run(NTWK, verbose=verbose)
 
     ######################
     ## ----- Write ---- ##
