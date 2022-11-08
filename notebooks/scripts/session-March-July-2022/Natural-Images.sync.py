@@ -24,7 +24,8 @@ import matplotlib.pylab as plt
 from importlib import reload # to be able to call "reload(physion)"
 
 # *_-= root =-_*
-physion_folder = os.path.join(os.path.expanduser('~'), 'work', 'spkNtwk-cortStatesWakefulness', 'physion') # UPDATE
+physion_folder = os.path.join(os.path.expanduser('~'), 
+                              'work', 'spkNtwk-cortStatesWakefulness', 'physion') # UPDATE
 # -- import physion core:
 sys.path.append(physion_folder)
 import physion
@@ -117,7 +118,7 @@ def show_stim_evoked_resp(episodes, stim_key, stim_index,
 
 # %%
 #stim_keys, stim_indices = ['Image-ID', 'VSE-seed'], [0,0]
-stim_keys, stim_indices = ['Image-ID'], [0]
+stim_keys, stim_indices = ['Image-ID'], [1]
 responsive_rois = find_responsive_rois(episodes_NI, stim_keys, stim_indices, ROI_SUMMARIES)
 show_stim_evoked_resp(Episodes_NI, stim_keys, stim_indices,
                       responsive_rois=responsive_rois);

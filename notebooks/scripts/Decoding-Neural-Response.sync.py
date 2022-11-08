@@ -40,8 +40,8 @@ from datavyz import ge
 # %%
 root_datafolder = os.path.join(os.path.expanduser('~'), 'DATA', 'curated')
 filename = '2022_06_13-14-17-33.nwb'
-root_datafolder = os.path.join(os.path.expanduser('~'), 'DATA', '6juil')
-filename = '2022_07_06-14-31-07.nwb'
+#root_datafolder = os.path.join(os.path.expanduser('~'), 'DATA', '6juil')
+#filename = '2022_07_06-14-31-07.nwb'
 data = Data(os.path.join(root_datafolder, filename))
 print(data.protocols)
 
