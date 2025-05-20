@@ -19,10 +19,14 @@ Model = {
     ## ---------------------------------------------------------------------------------
     # numbers of neurons in population
     'N_TcExc':100, 
+    'N_ReInh':100, 
     'N_L4Exc':100, 
     'N_AffExc':50,
     # synaptic weights
     'Q_TcExc_L4Exc':10., 
+    'Q_TcExc_ReInh':10., 
+    'Q_ReInh_TcExc':30., 
+    'Q_ReInh_ReInh':30., 
     'Q_L4Exc_TcExc':10., 
     'Q_AffExc_TcExc':10.,
     # synaptic time constants
@@ -33,7 +37,10 @@ Model = {
     'Erev_Inh':-80., 
     # connectivity parameters
     'p_TcExc_L4Exc':0.05, 
+    'p_TcExc_ReInh':0.05, 
     'p_L4Exc_TcExc':0.05, 
+    'p_ReInh_ReInh':0.08, 
+    'p_ReInh_TcExc':0.08, 
     'p_AffExc_TcExc':0.1, 
     'p_AffExc_L4Exc':0.1, 
     # simulation parameters
@@ -44,15 +51,19 @@ Model = {
     'TcExc_Gl':10., 'TcExc_Cm':200.,'TcExc_Trefrac':3.,
     'TcExc_El':-60., 'TcExc_Vthre':-50., 'TcExc_Vreset':-60., 'TcExc_deltaV':2.5,
     'TcExc_a':60., 'TcExc_b': 50, 'TcExc_tauw':200.,
-    # --> Reticular population (Exc)
+    # --> Layer 4 cortical population (Exc)
     'L4Exc_Gl':10., 'L4Exc_Cm':200.,'L4Exc_Trefrac':3.,
     'L4Exc_El':-60., 'L4Exc_Vthre':-50., 'L4Exc_Vreset':-60., 'L4Exc_deltaV':2.5,
     'L4Exc_a':0., 'L4Exc_b': 50, 'L4Exc_tauw':200.,
+    # --> Reticular population (Inh)
+    'ReInh_Gl':10., 'ReInh_Cm':200.,'ReInh_Trefrac':3.,
+    'ReInh_El':-60., 'ReInh_Vthre':-50., 'ReInh_Vreset':-60., 'ReInh_deltaV':2.5,
+    'ReInh_a':80., 'ReInh_b': 30, 'ReInh_tauw':600.,
     'F_AffExc':50,
 }
 
 
-NTWK = ntwk.build.populations(Model, ['TcExc', 'L4Exc'],
+NTWK = ntwk.build.populations(Model, ['TcExc', 'ReInh', 'L4Exc'],
                               AFFERENT_POPULATIONS=['AffExc'],
                               with_raster=True,
                               with_pop_act=True,
