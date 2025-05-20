@@ -1,6 +1,6 @@
-#+Title: Adaptable spiking dynamics enables flexible computations across waking states in sensory cortex
+# Adaptable spiking dynamics enables flexible computations across waking states in sensory cortex
 
-* Abstract
+## Abstract
 
 Despite the large amount of experimental evidence highlighting the critical role of state-dependent computations in the awake sensory cortex, a theoretical framework providing a mechanistic and functional description of this phenomenon is still lacking. The present study builds a minimal spiking network model of a local cortical assembly and examines its dynamical and computational properties (and compares ... with neurophysiological recordings in the awake behaving mouse). It is first shown that a weak intrinsic rhythmicity coupled with competing inhibitory and disinhibitory circuits allow recurrent spiking networks to generate the set of dynamical regimes observed at various arousal levels in rodent sensory cortices (also known as the “U-model” of cortical states). We then test the functional specificity of such network states in two vision-inspired tasks. In a natural scene discrimination task, the network encoding is found to be optimal (highly-reliable) when displaying the sparse activity regime associated to intermediate arousal levels. In a low contrast detection task, the network is optimally detecting (high-sensitivity) when displaying the dense activity regime found at high arousal levels. Finally, the rhythmic activity characterizing the idling cortex is shown to insure unambiguous transitions between the high-reliability and high-sensitivity modes of cortical activity, thus giving it a a functional role. This theoretical model therefore demonstrates a key function of spiking networks: they can implement an unambiguous switch between high-reliability and high-sensitivity modes. 
 
@@ -8,9 +8,9 @@ This feature might be one of the defining principle of sensory perception during
 
  underlying the context-dependent modulation of perception is to implement an adaptive strategy to reliably switch between high-reliability and high-sensitivity modes and therefore .
 
-* Main Text
+## Main Text
   
-*** Intro
+### Intro
 
 The variable nature of information transmission in neuronal networks is a puzzling aspect of the computation performed by sensory cortices. Indeed, unlike artificial intelligent systems that extract information by fixed transformations of incoming signals, the cortical representations of sensory features are highly variable across repeated presentations of a given stimulus (REFS). 
 
@@ -25,13 +25,13 @@ Recent investigation in the cortex of awake rodents have made this
 In parallel, psychophysical studies have pinpointed the critical role of the behavioral and physiological state in controlling perception.  
 The circuits and mechanisms have been the fo
 
-*** Dynamics - the U-model of arousal
+### Dynamics - the U-model of arousal
 
 The U-model of arousal is defined by a $V_m$ pattern in pyramidal cells as this quantitiy has been evidenced as a robust experimental signature of cortical states (McGinley et al., 2015b). 
 
 [[Figure {dynamics} around here]]
 
-*** Dynamics - setting up the model
+### Dynamics - setting up the model
 We first investigate what are the minimal biophysical and circuit ingredients to reproduce the set of cortical regimes during wakefulness as captured by the U-model of arousal. Following an emerging consensus (McGinley et al., 2015a), we define the U-model of cortical states by its $V_m$ signature in pyramidal cells, (Figure {dynamics}a)
 
 
@@ -48,7 +48,7 @@ C_m \frac{dV}{dt} =\frac{1}{Rm} \, (V_m-E_L) + I_{syn}(t)
 \end{equation}
 The membrane parameters were $E_L$=-75mv, $C_m$=200pF, Rm =100MΩ, Vthre=-50mV and Vreset=EL, and Isyn(t) is the total synaptic currents targeting a neuron. The synaptic 
 
-*** Dynamics - investigation
+### Dynamics - investigation
 
 Following evidences of subcortical control (Reimer et al., 2014a), I hypothesize a single variable controlling arousal-mediated, capturing cholinergic input
 we investigate the dynamics as function of this variable
@@ -64,7 +64,7 @@ The wide gamma envelope ([20,80]Hz) in the mean-field is approximated by computi
 
 Such an analytical reduction of the network dynamics, also known as a mean-field description, to perform the connectivity parameter search. Those analytical estimates were confirmed by numerical simulations of the spiking network, in particular the optimal configuration was found 
 
-*** Dynamics - Results
+### Dynamics - Results
 
 Remarkably we found that the connnectivity schemes allowing the closely resemble the canonical scheme of cortical circuit (Jiang et al., 2015), we therefore identify (see Figure {1})
 
@@ -74,11 +74,9 @@ The second largest population was providing tonic inhibition during rhythmic per
 
 Finally, it should be noted that a 5 population model containing the three stereotypical inhibitory populations (PV, SST, VIP) could display the same behavior with .
 
-*** Function - introducing the visual task
+### Function - introducing the visual task
 
-*** Function - introducing the visual task
-
-*** Role of rhythmic
+### Role of rhythmic activity
 
 At that point, two crucial questions emerge. What is the functional role of the non-zero endogenous activity found at low arousal ? Such rhythmic pattern make it difficult to be optimal for the transmission of sensory-evoked activity. 
 Given the ability of a cortical network to adapt its functional mode, there is the need for a downstream network to decode such mode so that the readout process can be modulated as well. How does that decoding works and what insures it's reliability ?
@@ -95,7 +93,7 @@ Because the two function-specific desynchronized regimes are either a globally m
 
 Fig 4. A spiking network model for the cortical states of wakefulness: architecture and dynamical regimes. (a) jkfhsakdfh. (b) sakldjfhsdfjh. 
 
-*** Conclusion/Discussion
+### Conclusion/Discussion
 
 The first theory of state-dependent perception bridging the scales from membrane potential dynamics to detection of sensory features.
 A spike-based computation
@@ -109,12 +107,12 @@ References
 [] Cardin (2019) Cur. Op. Neurobiol.
 [] The integrality of the simulations and analysis of the main and supplementary material are publicly available at the following address: https://github.com/yzerlaut/spkNtwk-cortStatesWakefulness/ 
 
-* Results
+### Results
 
 
 [[Figure {Fig3} around here]]
 
-*** Section talking abour first result
+### Section talking abour first result
 
 We replace values coming from the "analysis.npz" file:
 
@@ -134,13 +132,13 @@ Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Etiam lobortis facilis
 \end{equation}
 
 
-*** Section talking abour second result
+### Section talking abour second result
 
 Lorem ipsum dolor sit amet, consectetuer adipisc- ing elit. Etiam lobortis facilisis sem. Nullam nec mi et neque pharetra sollicitudin. Praesent im- perdiet mi nec ante. Donec ullamcorper, felis non sodales commodo, lectus velit ultrices augue, a dig- nissim nibh lectus placerat pede. Vivamus nunc nunc, molestie ut, ultricies vel, semper in, velit.  Ut porttitor. Praesent in sapien. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Duis fringilla tristique neque. Sed interdum libero ut metus. Pellentesque placerat. Nam rutrum augue a leo. Morbi sed elit sit amet ante lobortis sollicitudin. Praesent blandit blandit mauris. Praesent lectus tellus, aliquet aliquam, luctus a, egestas a, turpis. Mauris lacinia lorem sit amet ipsum. Nunc quis urna dictum turpis accumsan semper.Lorem ipsum dolor sit amet, consectetuer adipisc- ing elit. Etiam lobortis facilisis sem. Nullam nec mi et neque pharetra sollicitudin. Praesent im- perdiet mi nec ante. Donec ullamcorper, felis non sodales commodo, lectus velit ultrices augue, a dig- nissim nibh lectus placerat pede. Vivamus nunc nunc, molestie ut, ultricies vel, semper in, velit. Ut porttitor. Praesent in sapien. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Duis fringilla tristique neque. Sed interdum libero ut metus. Pellentesque placerat. Nam rutrum augue a leo. Morbi sed elit sit amet ante lobortis sollici- tudin. Praesent blandit blandit mauris. Praesent lectus tellus, aliquet aliquam, luctus a, egestas a, turpis. Mauris lacinia lorem sit amet ipsum. Nunc quis urna dictum turpis accumsan semper.
 
 * Methods
 
-*** First methodological section
+### First methodological section
 
 \begin{equation}
 \label{eq:first}
@@ -164,7 +162,7 @@ sollici-tudin. Praesent blandit blandit mauris. Praesentlectus tellus,
 aliquet aliquam, luctus a, egestas a,turpis. Mauris lacinia lorem sit
 amet ipsum. Nuncquis urna dictum turpis accumsan semper.
 
-*** Second methodological section
+### Second methodological section
 
 \begin{equation}
 \label{eq:second}
@@ -201,7 +199,7 @@ playing with some reference here (Destexhe et al., 2003)
 
 * Figures
 
-*** A spiking network model for the cortical states of wakefulness: architecture and dynamical regimes. 
+### A spiking network model for the cortical states of wakefulness: architecture and dynamical regimes. 
 #+options : {'label':'Fig1', 'extent':'singlecolumn', 'wrapfig':True, 'width':.57, 'height':10, 'wrapfig_space_left':-1.5, 'file':os.path.expanduser("~")+'/work/graphs/output/2d.png'}
 (a) Schematic of the 5 population model.
 (b) The U-model of cortical states.
@@ -209,7 +207,7 @@ playing with some reference here (Destexhe et al., 2003)
 (d) Resulting connectivity matrix.
 (e) Network dynamics.
 
-*** Testing network function in two vision-inspired tasks.
+### Testing network function in two vision-inspired tasks.
 #+options : {'label':'Fig3', 'extent':'doublecolumn', 'wrapfig':True, 'width':.52, 'height':9, 'hrule_bottom':True, 'file':os.path.expanduser("~")+'/work/graphs/output/fig.png'}
 (a) A phenomenological model of the visual system up to V1 now feeds the local cortical model based on a screen content. This model  
 (b) Praesentlectus tellus, aliquet aliquam, luctus a, egestas a,turpis. Mauris lacinia lorem sit amet ipsum. 
