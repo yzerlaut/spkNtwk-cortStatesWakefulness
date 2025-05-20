@@ -13,6 +13,3 @@
 [submodule "ml"]
 	path = ml
 	url = https://github.com/yzerlaut/ml.git
-[submodule "physion"]
-	path = physion
-	url = https://github.com/yzerlaut/physion
