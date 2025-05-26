@@ -21,8 +21,9 @@ Model = {
     'N_TcExc':200, 
     'N_ReInh':200, 
     'N_L5Exc':1000, 
-    'N_L4Exc':100, 
-    'N_L23Exc':100, 
+    'N_L4Exc':1000, 
+    'N_L23Exc':1000, 
+    'N_L23Inh':200, 
     'N_BgExc':100,
     'N_ModExc':100,
     # synaptic weights
@@ -51,6 +52,7 @@ Model = {
     'p_ReInh_ReInh':0.08, 
     'p_ReInh_TcExc':0.08, 
     'p_BgExc_TcExc':0.1, 
+    'p_ModExc_ReInh':0.2, 
     # simulation parameters
     'dt':0.1, 'tstop': 6000., 'SEED':3, # low by default, see later
     ## ---------------------------------------------------------------------------------
@@ -80,8 +82,14 @@ Model = {
     'AFF_POPS':['BgExc', 'ModExc'],
     # External drives
     'F_BgExc':8.,
-    'F_ModExc':0.,
 }
+
+t = ntwk.arange(int(Model['tstop']/Model['dt']))*Model['dt']
+# Model['Farray_BgExc'] = ntwk.stim.waveform_library.varying_levels_function(\
+                                                        # t, [0, 8], [0, 300], 200)
+Model['Farray_ModExc'] = ntwk.stim.waveform_library.varying_levels_function(\
+                                                        t, [0, 10], [0, 3e3], 200)
+
 
 ## run sim
 ntwk.quick_run.simulation(Model, with_Vm=3, verbose=False,
@@ -97,7 +105,6 @@ fig, _ = ntwk.plots.activity_plots(data,
                                                      subsampling=4))
 fig, ax = ntwk.plots.pt.figure(figsize=(4,12), top=0, left=0, bottom=0)
 ntwk.plots.few_Vm_plot(data, lw=0.5, vpeak=10, shift=100,
-                       clip_spikes=True,
                        spike_style='-', ax=ax,
                        COLORS=[ntwk.plots.pt.tab10(i) for i in range(4)],
                        NVMS=[[0] for i in Model['REC_POPS']])
