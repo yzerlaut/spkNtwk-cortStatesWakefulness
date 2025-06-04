@@ -16,7 +16,7 @@ Model = {
     ## UNIT SYSTEM is : ms, mV, pF, nS, pA, Hz (arbitrary and unconsistent, so see code)
     ## ---------------------------------------------------------------------------------
     # numbers of neurons in population
-    'N_L423Exc':4000, 'N_L423Inh':1000, 'N_AffExc':500, 'N_DsInh':500,
+    'N_L423Exc':4000, 'N_L423Inh':1000, 'N_AffExc':1000, 'N_DsInh':500,
     # synaptic weights (nS)
     'Q_L423Exc_L423Exc':2., 'Q_L423Exc_L423Inh':2., 
     'Q_L423Inh_L423Exc':10., 'Q_L423Inh_L423Inh':10., 
@@ -31,8 +31,8 @@ Model = {
     'p_L423Exc_L423Exc':0.05, 'p_L423Exc_L423Inh':0.05, 
     'p_L423Inh_L423Exc':0.05, 'p_L423Inh_L423Inh':0.05, 
     'p_DsInh_L423Inh':0.025, # reduce disinhibition (p=0.05)
-    'p_AffExc_L423Exc':0.02, 'p_AffExc_L423Inh':0.02, 
-    'p_AffExc_DsInh':0.015,
+    'p_AffExc_L423Exc':0.01, 'p_AffExc_L423Inh':0.01, 
+    'p_AffExc_DsInh':0.007,
     # afferent stimulation (Hz)
     'F_AffExc':10.,
     # simulation parameters (ms)
@@ -72,34 +72,36 @@ def waveform(t, Model):
 
 if __name__=='__main__':
 
-    NTWK = ntwk.build.populations(Model, ['L423Exc', 'L423Inh', 'DsInh'],
-                                  AFFERENT_POPULATIONS=['AffExc'],
-                                  with_raster=True, 
-                                  with_pop_act=True,
-                                  with_Vm=4,
-                                  verbose=True)
+    if not sys.argv[-1]=='plot':
 
-    ntwk.build.recurrent_connections(NTWK, SEED=5,
-                                     verbose=True)
+        NTWK = ntwk.build.populations(Model, ['L423Exc', 'L423Inh', 'DsInh'],
+                                      AFFERENT_POPULATIONS=['AffExc'],
+                                      with_raster=True, 
+                                      with_pop_act=True,
+                                      with_Vm=4,
+                                      verbose=True)
 
-    t_array = ntwk.arange(int(Model['tstop']/Model['dt']))*Model['dt']
-    # # # afferent excitation onto thalamic excitation
-    ntwk.stim.construct_feedforward_input(NTWK, 'L423Exc', 'AffExc',
-                                          t_array, waveform(t_array, Model),
-                                          verbose=True, SEED=27)
-    ntwk.stim.construct_feedforward_input(NTWK, 'L423Inh', 'AffExc',
-                                          t_array, waveform(t_array, Model),
-                                          verbose=True, SEED=28)
-    ntwk.stim.construct_feedforward_input(NTWK, 'DsInh', 'AffExc',
-                                          t_array, waveform(t_array, Model),
-                                          verbose=True, SEED=29)
+        ntwk.build.recurrent_connections(NTWK, SEED=5,
+                                         verbose=True)
+
+        t_array = ntwk.arange(int(Model['tstop']/Model['dt']))*Model['dt']
+        # # # afferent excitation onto thalamic excitation
+        ntwk.stim.construct_feedforward_input(NTWK, 'L423Exc', 'AffExc',
+                                              t_array, waveform(t_array, Model),
+                                              verbose=True, SEED=27)
+        ntwk.stim.construct_feedforward_input(NTWK, 'L423Inh', 'AffExc',
+                                              t_array, waveform(t_array, Model),
+                                              verbose=True, SEED=28)
+        ntwk.stim.construct_feedforward_input(NTWK, 'DsInh', 'AffExc',
+                                              t_array, waveform(t_array, Model),
+                                              verbose=True, SEED=29)
 
 
-    ntwk.build.initialize_to_rest(NTWK)
+        ntwk.build.initialize_to_rest(NTWK)
 
-    ntwk.collect_and_run(NTWK, verbose=True)
+        ntwk.collect_and_run(NTWK, verbose=True)
 
-    ntwk.recording.write_as_hdf5(NTWK, filename='data/Layer423.ntwk.h5')
+        ntwk.recording.write_as_hdf5(NTWK, filename='data/Layer423.ntwk.h5')
 
     data = ntwk.recording.load_dict_from_hdf5('data/Layer423.ntwk.h5')
 
@@ -108,6 +110,8 @@ if __name__=='__main__':
                                        pop_act_args=dict(smoothing=100, 
                                                          subsampling=2, log_scale=False),
                                        fig_args=dict(figsize=(2,0.4), dpi=75))
+
+    ntwk.plots.few_Vm_plot(data, clip_spikes=True)
 
     plt.show()
 
