@@ -18,8 +18,8 @@ Model = {
     ## UNIT SYSTEM is : ms, mV, pF, nS, pA, Hz (arbitrary and unconsistent, so see code)
     ## ---------------------------------------------------------------------------------
     # numbers of neurons in population
-    'N_TcExc':200, 
-    'N_ReInh':200, 
+    'N_TcExc':500, 
+    'N_ReInh':400, 
     'N_L5Exc':1000, 
     'N_BgExc':100,
     'N_ModExc':100,
@@ -39,11 +39,11 @@ Model = {
     'Erev_Exc':0., 
     'Erev_Inh':-80., 
     # connectivity parameters
-    'p_TcExc_L5Exc':0.05, 
-    'p_TcExc_ReInh':0.05, 
+    'p_TcExc_L5Exc':0.02, 
+    'p_TcExc_ReInh':0.02, 
     'p_L5Exc_TcExc':0.015, 
-    'p_ReInh_ReInh':0.08, 
-    'p_ReInh_TcExc':0.3, 
+    'p_ReInh_ReInh':0.04, 
+    'p_ReInh_TcExc':0.15, 
     'p_BgExc_TcExc':0.1, 
     'p_ModExc_ReInh':0.2, 
     # simulation parameters
