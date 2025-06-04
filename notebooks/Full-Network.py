@@ -150,11 +150,6 @@ NTWK = ntwk.build.populations(Model, Model['REC_POPS'],
 
 ntwk.build.recurrent_connections(NTWK, SEED=5, verbose=False)
 
-#######################################
-########### AFFERENT INPUTS ###########
-#######################################
-
-
 # # # afferent excitation onto cortical excitation and inhibition
 for i, tpop in enumerate(Model['REC_POPS']):
     for apop in Model['AFF_POPS']:
@@ -163,35 +158,29 @@ for i, tpop in enumerate(Model['REC_POPS']):
                                               verbose=False,
                                               SEED=int(37+i)%37)
 
-################################################################
-## --------------- Initial Condition ------------------------ ##
-################################################################
 ntwk.build.initialize_to_rest(NTWK)
 
-#####################
-## ----- Run ----- ##
-#####################
 def update_NM(NTWK):
     print('removing adaptation')
     for pop in NTWK['POPS']:
         pop.NM = 0.
     
 network_sim = ntwk.collect_and_run(NTWK, verbose=False,
-                                   INTERMEDIATE_INSTRUCTIONS=[{'time':3000, 'function':update_NM}])
+                                   INTERMEDIATE_INSTRUCTIONS=[{'time':3000,
+                                                               'function':update_NM}])
 
 ntwk.recording.write_as_hdf5(NTWK, filename='../data/thal-oscill.ntwk.h5')
 
-# %%
 ## load file
 data = ntwk.recording.load_dict_from_hdf5('../data/thal-oscill.ntwk.h5')
 
 # ## plot
 fig, AX = ntwk.plots.activity_plots(data, tzoom=[200, Model['tstop']],
-                                    axes_extents = dict(Aff=1, Raster=2, Rate=3, Vm=1),
-                                    Vm_args=dict(lw=0.5, spike_peak=10, subsampling=4),
+                                    fig_args = dict(figsize=(3,1.5), dpi=75),
+                                    axes_extents = dict(Aff=1, Raster=2, Rate=2, Vm=2),
+                                    Vm_args=dict(lw=0.5, spike_peak=10, subsampling=1),
                                     pop_act_args=dict(smoothing=4, subsampling=4))
 
 
 # %%
 
-# %%
