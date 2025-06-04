@@ -190,4 +190,5 @@ fig, AX = ntwk.plots.activity_plots(data, tzoom=[200, Model['tstop']],
                                     pop_act_args=dict(smoothing=4, subsampling=4))
 
 
+plt.show()
 # %%
