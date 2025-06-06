@@ -22,7 +22,7 @@ Model = {
     'N_ReInh':400, 
     'N_L5Exc':1000, 
     'N_BgExc':100,
-    'N_ModExc':100,
+    'N_ModExc':500,
     # synaptic weights
     'Q_TcExc_L5Exc':8., 
     'Q_TcExc_ReInh':5., 
@@ -32,6 +32,7 @@ Model = {
     'Q_BgExc_TcExc':10.,
     'Q_ModExc_L5Inh':5.,
     'Q_ModExc_ReInh':5.,
+    'Q_ModExc_TcExc':5.,
     # synaptic time constants
     'Tsyn_Exc':5., 
     'Tsyn_Inh':5., 
@@ -45,7 +46,8 @@ Model = {
     'p_ReInh_ReInh':0.04, 
     'p_ReInh_TcExc':0.15, 
     'p_BgExc_TcExc':0.1, 
-    'p_ModExc_ReInh':0.2, 
+    'p_ModExc_ReInh':0.05, 
+    'p_ModExc_TcExc':0.15, 
     # simulation parameters
     'dt':0.1, 'tstop': 4000., 'SEED':3, # low by default, see later
     ## ---------------------------------------------------------------------------------
@@ -69,9 +71,9 @@ Model = {
 
 t = ntwk.arange(int(Model['tstop']/Model['dt']))*Model['dt']
 Model['Farray_BgExc'] = ntwk.stim.waveform_library.varying_levels_function(\
-                                                        t, [0, 20], [0, 300], 200)
+                                                        t, [0, 15], [0, 300], 200)
 Model['Farray_ModExc'] = ntwk.stim.waveform_library.varying_levels_function(\
-                                                        t, [0, 10], [0, 2e3], 200)
+                                                        t, [0, 8], [0, 2e3], 200)
 
 
 if __name__=='__main__':
@@ -80,20 +82,28 @@ if __name__=='__main__':
     if not sys.argv[-1]=='plot':
 
         ntwk.quick_run.simulation(Model, with_Vm=3, verbose=False,
-                                  filename='data/thal-oscill.ntwk.h5')
+                                  filename='data/TcL5.ntwk.h5')
 
-    data = ntwk.recording.load_dict_from_hdf5('data/thal-oscill.ntwk.h5')
+    data = ntwk.recording.load_dict_from_hdf5('data/TcL5.ntwk.h5')
 
-    fig, _ = ntwk.plots.activity_plots(data, 
-                                       pop_act_args=dict(smoothing=10, 
-                                                         subsampling=2, 
-                                                         log_scale=False),
-                                       fig_args=dict(figsize=(3,0.7), dpi=75))
+    print('TcExc rate ', data['POP_ACT_TcExc'][-2000:].mean(), 'Hz')
+
+    # fig, _ = ntwk.plots.activity_plots(data, 
+                                       # pop_act_args=dict(smoothing=10, 
+                                                         # subsampling=2, 
+                                                         # log_scale=False),
+                                       # fig_args=dict(figsize=(3,0.7), dpi=75))
 
     # fig, ax = ntwk.plots.pt.figure(figsize=(4,12), top=0, left=0, bottom=0)
     # ntwk.plots.few_Vm_plot(data, lw=0.5, vpeak=10, shift=100,
                            # spike_style='-', ax=ax,
                            # COLORS=[ntwk.plots.pt.tab10(i) for i in range(4)],
                            # NVMS=[[0] for i in Model['REC_POPS']])
+
+    ntwk.plots.pretty(data,
+                      axes_extents = dict(Raster=3, Vm=15, Rate=1),
+                      Raster_args=dict(ms=0.5, with_annot=False, subsampling=10),
+                      Rate_args=dict(smoothing=5),
+                      Vm_args=dict(lw=0.5, subsampling=1, vpeak=10, shift=50))
 
     plt.show()

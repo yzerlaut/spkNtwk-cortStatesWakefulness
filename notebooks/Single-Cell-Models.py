@@ -27,7 +27,7 @@ from neural_network_dynamics.utils import plot_tools as pt
 import numpy as np
 
 stim = {
-    'amplitudes' : [250., 0, -250], # pA
+    'amplitudes' : [500., 0, -500], # pA
     'durations' : [300., 500., 300.], # ms
     'delay' : 300,
 }
@@ -57,8 +57,17 @@ def plot(t, Vm, I, spikes, params,
 # %%
 params = {
     'Gl':10., 'Cm':200.,'Trefrac':2.5,
-    'El':-60., 'Vthre':-50., 'Vreset':-60., 'deltaV':2.5,
-    'a': 40., 'b': 20., 'tauw':300., 'N':1}
+    'El':-70., 'Vthre':-50., 'Vreset':-60., 'deltaV':2.5,
+    'a': 60., 'b': 70., 'tauw':200., 'N':1}
+
+t, Vm, I, spikes = ntwk.cells.pulse_protocols.run_sim(stim, params)
+fig, ax = plot(t, Vm, I, spikes, params)
+
+# %%
+params = {
+    'Gl':10., 'Cm':200.,'Trefrac':2.5,
+    'El':-70., 'Vthre':-50., 'Vreset':-60., 'deltaV':2.5,
+    'a': 0., 'b': 0., 'tauw':200., 'N':1}
 
 t, Vm, I, spikes = ntwk.cells.pulse_protocols.run_sim(stim, params)
 fig, ax = plot(t, Vm, I, spikes, params)
