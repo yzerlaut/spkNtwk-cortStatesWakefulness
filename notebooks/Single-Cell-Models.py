@@ -62,15 +62,17 @@ params = {
 
 t, Vm, I, spikes = ntwk.cells.pulse_protocols.run_sim(stim, params)
 fig, ax = plot(t, Vm, I, spikes, params)
+pt.save(fig)
 
 # %%
 params = {
-    'Gl':10., 'Cm':200.,'Trefrac':2.5,
-    'El':-70., 'Vthre':-50., 'Vreset':-60., 'deltaV':2.5,
+    'Gl':13., 'Cm':200.,'Trefrac':2.5,
+    'El':-70., 'Vthre':-40., 'Vreset':-60., 'deltaV':2.5,
     'a': 0., 'b': 0., 'tauw':200., 'N':1}
 
 t, Vm, I, spikes = ntwk.cells.pulse_protocols.run_sim(stim, params)
 fig, ax = plot(t, Vm, I, spikes, params)
+pt.save(fig)
 
 # %% [markdown]
 # ## Reticular (RE) thalamic cells
@@ -95,9 +97,10 @@ fig, ax = plot(t, Vm, I, spikes, params)
 params = {
     'Gl':10., 'Cm':200.,'Trefrac':2.5,
     'El':-60., 'Vthre':-50., 'Vreset':-60., 'deltaV':2.5,
-    'a':0., 'b': 60., 'tauw':300., 'N':1}
+    'a':0., 'b': 100., 'tauw':300., 'N':1}
 
 t, Vm, I, spikes = ntwk.cells.pulse_protocols.run_sim(stim, params)
 fig, ax = plot(t, Vm, I, spikes, params)
+pt.save(fig)
 
 # %%

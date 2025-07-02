@@ -2,7 +2,7 @@ import sys, pathlib, scipy
 import numpy as np
 import matplotlib.pylab as plt
 
-sys.path.append('../neural_network_dynamics')
+sys.path.append('./neural_network_dynamics')
 import ntwk
 
 ################################################################
@@ -30,18 +30,18 @@ Model = {
     # connectivity parameters (proba.)
     'p_L423Exc_L423Exc':0.05, 'p_L423Exc_L423Inh':0.05, 
     'p_L423Inh_L423Exc':0.05, 'p_L423Inh_L423Inh':0.05, 
-    'p_DsInh_L423Inh':0.025, # reduce disinhibition (p=0.05)
+    'p_DsInh_L423Inh':0.03, # reduce disinhibition (p=0.05)
     'p_AffExc_L423Exc':0.01, 'p_AffExc_L423Inh':0.01, 
     'p_AffExc_DsInh':0.007,
     # afferent stimulation (Hz)
     'F_AffExc':10.,
     # simulation parameters (ms)
-    'dt':0.1, 'tstop':2000, 'SEED':3, # low by default, see later
+    'dt':0.1, 'tstop':4000, 'SEED':3, # low by default, see later
     ## ---------------------------------------------------------------------------------
     # === cellular properties (based on AdExp), population by population ===
     # --> Excitatory population (L423Exc, recurrent excitation)
     'L423Exc_Gl':10., 'L423Exc_Cm':200.,'L423Exc_Trefrac':5.,
-    'L423Exc_El':-70., 'L423Exc_Vthre':-50., 'L423Exc_Vreset':-70., 'L423Exc_delta_v':0.,
+    'L423Exc_El':-70., 'L423Exc_Vthre':-50., 'L423Exc_Vreset':-60., 'L423Exc_delta_v':0.,
     'L423Exc_a':0., 'L423Exc_b': 0., 'L423Exc_tauw':1e9, 'L423Exc_deltaV':0,
     # --> Inhibitory population (L423Inh, recurrent inhibition)
     'L423Inh_Gl':10., 'L423Inh_Cm':200.,'L423Inh_Trefrac':5.,
@@ -53,8 +53,8 @@ Model = {
     'DsInh_a':0., 'DsInh_b': 0., 'DsInh_tauw':1e9, 'DsInh_deltaV':0,
     ## ---------------------------------------------------------------------------------
     # === afferent population waveform:
-    'Faff1':5.,'Faff2':18.,
-    'DT':900., 'rise':50.
+    'Faff1':4.5,'Faff2':18.,
+    'DT':2000., 'rise':100.
 }
 
 
@@ -106,6 +106,18 @@ if __name__=='__main__':
     data = ntwk.recording.load_dict_from_hdf5('data/Layer423.ntwk.h5')
 
     # ## plot
+    COLORS = ['#008000', '#D40000', '#800080']
+    ntwk.plots.pretty(data,
+                      COLORS=COLORS,
+                      axes_extents = dict(Raster=3, Vm=15, Rate=1),
+                      Raster_args=dict(ms=0.5, with_annot=False, subsampling=10),
+                      Rate_args=dict(smoothing=5),
+                      Vm_args=dict(lw=0.5, subsampling=1, 
+                                   NVMS=[range(4),[1],[1]],
+                                   vpeak=10, shift=50))
+
+    plt.show()
+    """
     fig, _ = ntwk.plots.activity_plots(data, 
                                        pop_act_args=dict(smoothing=100, 
                                                          subsampling=2, log_scale=False),
@@ -115,3 +127,4 @@ if __name__=='__main__':
 
     plt.show()
 
+    """
